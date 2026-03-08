@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Forex Agent — Pro Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230891B2'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white'%3E%E2%82%A3%3C/text%3E%3C/svg%3E">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      colors: {
+        base: '#ECFEFF',
+        surface: 'rgba(255,255,255,0.80)',
+        primary: '#0891B2',
+        secondary: '#0284C7',
+        'text-primary': '#164E63',
+        'text-muted': '#155E75',
+        border: '#CFFAFE',
+        success: '#10B981',
+        danger: '#EF4444',
+        warning: '#F59E0B',
+        halted: '#DC2626',
+      }
+    }
+  }
+}
+</script>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+
+<!-- Lucide Icons -->
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+
+<style>
+  body { background: #ECFEFF; }
+  .glass { background: rgba(255,255,255,0.80); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .glass-card { background: rgba(255,255,255,0.90); backdrop-filter: blur(8px); border: 1px solid #CFFAFE; border-radius: 12px; }
+
+  /* Score bar animation */
+  .score-bar-fill { transition: width 0.6s ease-out; }
+
+  /* Drawdown progress bar */
+  .dd-bar { height: 6px; border-radius: 3px; overflow: hidden; background: #E0F2FE; }
+  .dd-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease-out; }
+
+  /* Event log scroll */
+  .event-log { max-height: 320px; overflow-y: auto; }
+  .event-log::-webkit-scrollbar { width: 4px; }
+  .event-log::-webkit-scrollbar-thumb { background: #A5F3FC; border-radius: 2px; }
+
+  /* Pulse animation for new data */
+  @keyframes flash { 0% { background: rgba(8,145,178,0.08); } 100% { background: transparent; } }
+  .flash { animation: flash 1s ease-out; }
+
+  /* Halted banner */
+  @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+  .halt-banner { animation: slideDown 0.3s ease-out; }
+
+  /* Modal backdrop */
+  .modal-backdrop { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+
+  /* Smooth transitions */
+  .pair-row { transition: all 0.2s ease; }
+  .pair-row:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(8,145,178,0.12); }
+</style>
+</head>
+
+<body class="min-h-screen" x-data="dashboard()" x-init="init()">
+
+  <!-- HALT BANNER -->
+  <div x-show="portfolio.is_halted" x-cloak
+       class="halt-banner fixed top-0 left-0 right-0 z-50 bg-halted text-white px-4 py-2 text-center text-sm font-semibold shadow-lg">
+    <span class="inline-flex items-center gap-2">
+      <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+      TRADING HALTED — <span x-text="portfolio.halt_reason || 'Drawdown limit breached'"></span>
+      <button @click="unhaltSystem()" class="ml-4 px-3 py-0.5 bg-white/20 rounded text-xs hover:bg-white/30 transition">Reset</button>
+    </span>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="glass sticky top-0 z-40 border-b border-border shadow-sm" :class="{'mt-10': portfolio.is_halted}">
+    <div class="max-w-[1440px] mx-auto px-4 lg:px-6 h-14 flex items-center justify-between">
+      <!-- Left: Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-white"></i>
+        </div>
+        <span class="text-text-primary font-bold text-lg">AI Forex Agent</span>
+        <span class="px-2 py-0.5 rounded text-xs font-bold"
+              :class="portfolio.mode === 'real' ? 'bg-danger/10 text-danger' : 'bg-primary/10 text-primary'"
+              x-text="(portfolio.mode || 'demo').toUpperCase() + ' MODE' + ((portfolio.challenge_mode && portfolio.challenge_mode !== 'none') ? (' • ' + challengeModeLabel(portfolio.challenge_mode).toUpperCase()) : '')">
+        </span>
+      </div>
+
+      <!-- Right: Status + Clock -->
+      <div class="flex items-center gap-4 text-sm">
+        <!-- API dots -->
+        <div class="hidden sm:flex items-center gap-3">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full" :class="system.api_status?.oanda ? 'bg-success' : 'bg-danger'"></span>
+            <span class="text-text-muted text-xs">OANDA</span>
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full" :class="system.api_status?.gemini ? 'bg-success' : 'bg-danger'"></span>
+            <span class="text-text-muted text-xs">Gemini</span>
+          </span>
+        </div>
+
+        <!-- WS Status -->
+        <span class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full" :class="wsConnected ? 'bg-success' : 'bg-danger'"></span>
+          <span class="text-text-muted text-xs" x-text="wsConnected ? 'Live' : 'Offline'"></span>
+        </span>
+
+        <!-- Clocks -->
+        <div class="hidden md:flex items-center gap-2 text-text-muted font-mono text-xs">
+          <span x-text="'UTC ' + clockUTC"></span>
+          <span class="text-border">|</span>
+          <span x-text="'WIB ' + clockWIB"></span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-[1440px] mx-auto px-4 lg:px-6 py-5 space-y-5">
+
+    <!-- KPI RIBBON — 5 Cards -->
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+
+      <!-- Balance -->
+      <div class="glass-card p-4">
+        <div class="flex items-center gap-2 text-text-muted text-xs font-medium mb-1.5">
+          <i data-lucide="wallet" class="w-3.5 h-3.5"></i> BALANCE
+        </div>
+        <div class="text-2xl font-bold text-text-primary" x-text="'$' + fmtNum(portfolio.balance)"></div>
+        <div class="text-xs text-text-muted mt-0.5">HWM: $<span x-text="fmtNum(portfolio.high_water_mark)"></span></div>
+      </div>
+
+      <!-- Floating PnL -->
+      <div class="glass-card p-4">
+        <div class="flex items-center gap-2 text-text-muted text-xs font-medium mb-1.5">
+          <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> FLOATING P/L
+        </div>
+        <div class="text-2xl font-bold"
+             :class="portfolio.floating_pnl >= 0 ? 'text-success' : 'text-danger'"
+             x-text="(portfolio.floating_pnl >= 0 ? '+$' : '-$') + fmtNum(Math.abs(portfolio.floating_pnl))">
+        </div>
+        <!-- Per-trade breakdown -->
+        <div class="mt-1.5 space-y-0.5">
+          <template x-for="t in (portfolio.active_trades || [])" :key="t.trade_id">
+            <div class="flex justify-between text-xs">
+              <span class="text-cyan-950 font-mono font-semibold" x-text="t.pair"></span>
+              <span class="font-mono"
+                    :class="(t.floating_dollar || 0) >= 0 ? 'text-success' : 'text-danger'"
+                    x-text="((t.floating_dollar || 0) >= 0 ? '+' : '') + '$' + fmtNum(Math.abs(t.floating_dollar || 0))"></span>
+            </div>
+          </template>
+          <template x-if="!portfolio.active_trades?.length">
+            <div class="text-xs text-text-muted">No trades</div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Drawdown Guard -->
+      <div class="glass-card p-4">
+        <div class="flex items-center gap-2 text-text-muted text-xs font-medium mb-1.5">
+          <i data-lucide="shield" class="w-3.5 h-3.5"></i> DAILY DRAWDOWN
+        </div>
+        <div class="text-2xl font-bold"
+             :class="ddColor(portfolio.daily_drawdown_pct, portfolio.max_daily_drawdown)"
+             x-text="fmtPct(portfolio.daily_drawdown_pct) + ' / ' + fmtPct(portfolio.max_daily_drawdown)">
+        </div>
+        <div class="dd-bar mt-2">
+          <div class="dd-fill" :class="ddBarColor(portfolio.daily_drawdown_pct, portfolio.max_daily_drawdown)"
+               :style="'width:' + ddBarWidth(portfolio.daily_drawdown_pct, portfolio.max_daily_drawdown) + '%'"></div>
+        </div>
+        <div class="text-[11px] mt-1" :class="portfolio.drawdown_guard_enabled ? 'text-success' : 'text-warning'"
+             x-text="portfolio.drawdown_guard_enabled ? 'Guard ON' : 'Guard OFF'"></div>
+      </div>
+
+      <!-- Win Rate -->
+      <div class="glass-card p-4">
+        <div class="flex items-center gap-2 text-text-muted text-xs font-medium mb-1.5">
+          <i data-lucide="target" class="w-3.5 h-3.5"></i> WIN RATE
+        </div>
+        <div class="text-2xl font-bold text-text-primary" x-text="fmtPct(stats.winrate || 0)"></div>
+        <div class="text-xs text-text-muted mt-0.5">
+          <span x-text="(stats.total_pips || 0).toFixed(1)"></span> pips
+          (<span x-text="stats.wins || 0"></span>W / <span x-text="stats.losses || 0"></span>L)
+        </div>
+      </div>
+
+      <!-- Active Trades -->
+      <div class="glass-card p-4">
+        <div class="flex items-center gap-2 text-text-muted text-xs font-medium mb-1.5">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i> ACTIVE
+        </div>
+        <div class="text-2xl font-bold text-text-primary"
+             x-text="portfolio.active_count + '/' + portfolio.max_concurrent">
+        </div>
+        <div class="text-xs text-text-muted mt-0.5" x-text="activePairNames()"></div>
+      </div>
+    </section>
+
+    <!-- MAIN 2-COLUMN GRID -->
+    <section class="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-5">
+
+      <!-- ========= LEFT COLUMN ========= -->
+      <div class="space-y-5">
+
+        <!-- TAB: Positions / AI Radar -->
+        <div class="glass-card overflow-hidden">
+          <!-- Tab Header -->
+          <div class="flex border-b border-border">
+            <button @click="activeTab = 'positions'"
+                    class="px-5 py-3 text-sm font-semibold transition-colors"
+                    :class="activeTab === 'positions' ? 'text-primary border-b-2 border-primary' : 'text-text-muted hover:text-text-primary'">
+              <i data-lucide="layout-list" class="w-4 h-4 inline -mt-0.5 mr-1"></i>
+              Active Positions
+            </button>
+            <button @click="activeTab = 'pending'"
+                    class="px-5 py-3 text-sm font-semibold transition-colors"
+                    :class="activeTab === 'pending' ? 'text-primary border-b-2 border-primary' : 'text-text-muted hover:text-text-primary'">
+              <i data-lucide="clock" class="w-4 h-4 inline -mt-0.5 mr-1"></i>
+              Pending
+              <template x-if="(portfolio.pending_setups || []).length > 0">
+                <span class="ml-1 px-1.5 py-0.5 rounded-full bg-warning/20 text-warning text-[10px] font-bold"
+                      x-text="(portfolio.pending_setups || []).length"></span>
+              </template>
+            </button>
+            <button @click="activeTab = 'radar'"
+                    class="px-5 py-3 text-sm font-semibold transition-colors"
+                    :class="activeTab === 'radar' ? 'text-primary border-b-2 border-primary' : 'text-text-muted hover:text-text-primary'">
+              <i data-lucide="radar" class="w-4 h-4 inline -mt-0.5 mr-1"></i>
+              AI Radar
+            </button>
+          </div>
+
+          <!-- Tab Content: Active Positions -->
+          <div x-show="activeTab === 'positions'" class="p-4">
+            <template x-if="portfolio.active_trades?.length === 0">
+              <div class="text-center py-8 text-text-muted">
+                <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+                <p class="text-sm">No active positions</p>
+              </div>
+            </template>
+
+            <div class="space-y-3">
+              <template x-for="trade in portfolio.active_trades || []" :key="trade.trade_id">
+                <div class="pair-row glass-card p-4 cursor-pointer" @click="trade._expanded = !trade._expanded">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="text-base font-bold text-cyan-950" x-text="trade.pair"></span>
+                      <span class="px-2 py-0.5 rounded text-xs font-bold"
+                            :class="trade.direction === 'buy' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'"
+                            x-text="trade.direction?.toUpperCase()"></span>
+                      <span class="text-xs text-text-muted" x-text="trade.strategy_mode"></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs">
+                      <button
+                        @click.stop="manualCloseTrade(trade)"
+                        :disabled="isManualClosing(trade.trade_id)"
+                        class="px-2 py-0.5 rounded border border-danger/30 text-danger hover:bg-danger/10 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        x-text="isManualClosing(trade.trade_id) ? 'Closing...' : 'Close'"></button>
+                      <!-- Per-trade floating PnL badge -->
+                      <span class="px-2 py-1 rounded font-bold font-mono"
+                            :class="(trade.floating_dollar || 0) >= 0 ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'"
+                            x-text="((trade.floating_dollar || 0) >= 0 ? '+' : '') + '$' + fmtNum(Math.abs(trade.floating_dollar || 0))"></span>
+                      <span class="font-mono"
+                            :class="(trade.floating_pips || 0) >= 0 ? 'text-success' : 'text-danger'"
+                            x-text="((trade.floating_pips || 0) >= 0 ? '+' : '') + (trade.floating_pips || 0).toFixed(1) + ' pips'"></span>
+                      <template x-if="trade.sl_moved_to_be">
+                        <span class="px-2 py-0.5 bg-success/10 text-success rounded font-medium">BE</span>
+                      </template>
+                      <template x-if="trade.trail_active">
+                        <span class="px-2 py-0.5 bg-primary/10 text-primary rounded font-medium">TRAIL</span>
+                      </template>
+                      <template x-if="trade.partial_closed">
+                        <span class="px-2 py-0.5 bg-warning/10 text-warning rounded font-medium">50%</span>
+                      </template>
+                    </div>
+                  </div>
+
+                  <!-- Trade details: prices in a 5-col grid -->
+                  <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-3 text-xs">
+                    <div>
+                      <span class="text-text-muted block">Entry (Exec)</span>
+                      <span class="font-mono text-text-primary font-bold" x-text="fmtPrice(trade.entry_price, trade.pair)"></span>
+                    </div>
+                    <div>
+                      <span class="text-text-muted block">Current</span>
+                      <span class="font-mono font-bold"
+                            :class="trade.current_price ? ((trade.direction === 'buy' ? trade.current_price >= trade.entry_price : trade.current_price <= trade.entry_price) ? 'text-success' : 'text-danger') : 'text-text-muted'"
+                            x-text="trade.current_price ? fmtPrice(trade.current_price, trade.pair) : '...'"></span>
+                    </div>
+                    <div>
+                      <span class="text-text-muted block">Stop Loss</span>
+                      <span class="font-mono text-danger" x-text="fmtPrice(trade.stop_loss, trade.pair)"></span>
+                    </div>
+                    <div>
+                      <span class="text-text-muted block">TP1</span>
+                      <span class="font-mono text-success" x-text="fmtPrice(trade.take_profit_1, trade.pair)"></span>
+                    </div>
+                    <div>
+                      <span class="text-text-muted block">TP2</span>
+                      <span class="font-mono text-success" x-text="fmtPrice(trade.take_profit_2, trade.pair)"></span>
+                    </div>
+                  </div>
+
+                  <!-- Risk/Reward bar -->
+                  <div class="mt-2 flex items-center gap-2 text-xs">
+                    <span class="text-text-muted">R:R</span>
+                    <span class="font-mono font-bold"
+                          :class="(trade.rr_current || 0) >= 0 ? 'text-success' : 'text-danger'"
+                          x-text="((trade.rr_current || 0) >= 0 ? '+' : '') + (trade.rr_current || 0).toFixed(2) + 'R'"></span>
+                    <span class="text-text-muted ml-auto font-mono" x-text="'Score: ' + trade.confluence_score"></span>
+                  </div>
+
+                  <!-- Expanded: SL history, time -->
+                  <div x-show="trade._expanded" class="mt-3 pt-3 border-t border-border text-xs text-text-muted">
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>Original SL: <span class="font-mono" x-text="fmtPrice(trade.original_sl, trade.pair)"></span></div>
+                      <div>Opened: <span class="font-mono" x-text="fmtTime(trade.opened_at)"></span></div>
+                      <div>Trade ID: <span class="font-mono" x-text="trade.trade_id"></span></div>
+                      <div>Size: <span class="font-mono" x-text="(trade.lot_size || 0).toFixed(3) + ' lot'"></span></div>
+                      <template x-if="trade.entry_zone_low">
+                        <div>Entry Zone: <span class="font-mono" x-text="fmtPrice(trade.entry_zone_low, trade.pair) + ' – ' + fmtPrice(trade.entry_zone_high, trade.pair)"></span></div>
+                      </template>
+                      <template x-if="trade.recommended_entry">
+                        <div>📌 Rec Entry: <span class="font-mono font-bold text-primary" x-text="fmtPrice(trade.recommended_entry, trade.pair)"></span></div>
+                      </template>
+                      <div class="col-span-2">Revalidation: <span class="font-mono" x-text="trade.last_revalidation_note || 'pending'"></span></div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Tab Content: Pending Setups -->
+          <div x-show="activeTab === 'pending'" class="p-4">
+            <template x-if="(portfolio.pending_setups || []).length === 0">
+              <div class="text-center py-8 text-text-muted">
+                <i data-lucide="clock" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+                <p class="text-sm">No pending setups</p>
+                <p class="text-xs mt-1 opacity-60">Setups waiting for price to enter zone will appear here</p>
+              </div>
+            </template>
+
+            <div class="space-y-3">
+              <template x-for="ps in portfolio.pending_setups || []" :key="ps.setup_id">
+                <div class="pair-row glass-card p-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                      <span class="text-base font-bold text-cyan-950" x-text="ps.pair"></span>
+                      <span class="px-2 py-0.5 rounded text-xs font-bold"
+                            :class="ps.direction === 'buy' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'"
+                            x-text="ps.direction?.toUpperCase()"></span>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-warning/10 text-warning">PENDING</span>
+                    </div>
+                    <div class="text-right text-xs">
+                      <span class="text-text-muted" x-text="Math.round(ps.remaining_ttl_minutes || 0) + 'min left'"></span>
+                      <span class="ml-2 font-bold" :class="scoreColor(ps.confluence_score)" x-text="ps.confluence_score + '/15'"></span>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mt-2">
+                    <div>
+                      <span class="text-text-muted block">Entry Zone</span>
+                      <span class="font-mono text-text-primary" x-text="fmtPrice(ps.entry_zone_low, ps.pair) + ' – ' + fmtPrice(ps.entry_zone_high, ps.pair)"></span>
+                    </div>
+                    <div>
+                      <span class="text-text-muted block">📌 Rec Entry</span>
+                      <span class="font-mono font-bold text-primary" x-text="fmtPrice(ps.recommended_entry, ps.pair)"></span>
+                    </div>
+                    <div>
+                      <span class="text-text-muted block">Stop Loss</span>
+                      <span class="font-mono text-danger" x-text="fmtPrice(ps.stop_loss, ps.pair)"></span>
+                    </div>
+                    <div>
+                      <span class="text-text-muted block">TP1 / TP2</span>
+                      <span class="font-mono text-success" x-text="fmtPrice(ps.take_profit_1, ps.pair) + (ps.take_profit_2 ? ' / ' + fmtPrice(ps.take_profit_2, ps.pair) : '')"></span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Tab Content: AI Radar -->
+          <div x-show="activeTab === 'radar'" class="p-4">
+            <template x-if="analyses.length === 0">
+              <div class="text-center py-8 text-text-muted">
+                <i data-lucide="radio" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+                <p class="text-sm">Waiting for scan data...</p>
+                <p class="text-xs mt-1 opacity-60">Scans run at Asian/London/Pre-NY sessions</p>
+              </div>
+            </template>
+
+            <div class="space-y-2">
+              <template x-for="a in sortedAnalyses()" :key="a.pair">
+                <div class="pair-row glass-card p-3 cursor-pointer" @click="showAnalysisModal(a)">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-sm text-cyan-950" x-text="a.pair"></span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold"
+                            :class="dirBadgeClass(a)"
+                            x-text="getDir(a)"></span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/5 text-primary"
+                            x-text="a.state || '—'"></span>
+                    </div>
+                    <div class="text-right">
+                      <span class="font-bold text-base"
+                            :class="scoreColor(getScore(a))"
+                            x-text="getScore(a)"></span>
+                      <span class="text-text-muted text-xs">/14</span>
+                    </div>
+                  </div>
+                  <!-- Score bar -->
+                  <div class="h-1.5 rounded-full bg-cyan-100 overflow-hidden">
+                    <div class="score-bar-fill h-full rounded-full"
+                         :class="scoreBarColor(getScore(a))"
+                         :style="'width:' + (getScore(a)/14*100) + '%'"></div>
+                  </div>
+                  <!-- Error or setup info -->
+                  <div class="mt-2 text-xs text-text-muted truncate" x-text="getRadarSummary(a)"></div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE EVENT LOG -->
+        <div class="glass-card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-semibold text-text-primary flex items-center gap-2">
+              <i data-lucide="radio" class="w-4 h-4 text-primary"></i> Live Events
+            </h3>
+            <span class="text-xs text-text-muted" x-text="events.length + ' events'"></span>
+          </div>
+          <div class="event-log space-y-1.5" id="eventLog">
+            <template x-if="events.length === 0">
+              <div class="text-center py-4 text-text-muted text-xs">No events yet</div>
+            </template>
+            <template x-for="(evt, i) in events" :key="i">
+              <div class="flex gap-2 items-start text-xs px-2 py-1 rounded hover:bg-cyan-50/50">
+                <span class="font-mono text-text-muted shrink-0 w-16" x-text="evt.time"></span>
+                <span class="font-semibold shrink-0 w-28"
+                      :class="eventColor(evt.type)"
+                      x-text="evt.type.replace('_',' ')"></span>
+                <span class="text-text-primary font-medium w-16 shrink-0" x-text="evt.pair"></span>
+                <span class="text-text-muted truncate" x-text="evt.summary"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========= RIGHT COLUMN ========= -->
+      <div class="space-y-5">
+
+        <!-- CHALLENGE / RISK CONTROL -->
+        <div class="glass-card p-4">
+          <h3 class="text-sm font-semibold text-text-primary flex items-center gap-2 mb-3">
+            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-primary"></i> Challenge & Risk Control
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <label class="space-y-1">
+              <span class="text-text-muted">Challenge Mode</span>
+              <select x-model="configForm.challenge_mode" class="w-full rounded border border-border bg-white px-2 py-1.5 text-text-primary">
+                <option value="none">Off</option>
+                <option value="challenge_extreme">Extreme</option>
+                <option value="challenge_cent">Cent</option>
+              </select>
+            </label>
+
+            <label class="space-y-1">
+              <span class="text-text-muted">Sizing Mode</span>
+              <select x-model="configForm.position_sizing_mode" class="w-full rounded border border-border bg-white px-2 py-1.5 text-text-primary">
+                <option value="risk_percent">Risk %</option>
+                <option value="fixed_lot">Fixed Lot</option>
+              </select>
+            </label>
+
+            <label class="space-y-1">
+              <span class="text-text-muted">Fixed Lot</span>
+              <input x-model.number="configForm.fixed_lot_size" type="number" min="0" step="0.01"
+                     class="w-full rounded border border-border bg-white px-2 py-1.5 text-text-primary">
+            </label>
+
+            <label class="space-y-1">
+              <span class="text-text-muted">Revalidation (min)</span>
+              <input x-model.number="configForm.active_revalidation_interval_minutes" type="number" min="15" step="15"
+                     class="w-full rounded border border-border bg-white px-2 py-1.5 text-text-primary">
+            </label>
+          </div>
+
+          <!-- Cent mode SL/TP multipliers (shown only in cent mode) -->
+          <template x-if="configForm.challenge_mode === 'challenge_cent'">
+            <div class="grid grid-cols-2 gap-3 text-xs mt-3">
+              <label class="space-y-1">
+                <span class="text-text-muted">Cent SL Multiplier</span>
+                <input x-model.number="configForm.cent_sl_multiplier" type="number" min="1" step="0.1"
+                       class="w-full rounded border border-border bg-white px-2 py-1.5 text-text-primary">
+              </label>
+              <label class="space-y-1">
+                <span class="text-text-muted">Cent TP Multiplier</span>
+                <input x-model.number="configForm.cent_tp_multiplier" type="number" min="1" step="0.1"
+                       class="w-full rounded border border-border bg-white px-2 py-1.5 text-text-primary">
+              </label>
+            </div>
+          </template>
+
+          <div class="mt-3 flex flex-wrap gap-3 text-xs">
+            <label class="inline-flex items-center gap-2 text-text-primary">
+              <input x-model="configForm.drawdown_guard_enabled" type="checkbox">
+              <span>Drawdown Guard</span>
+            </label>
+            <label class="inline-flex items-center gap-2 text-text-primary">
+              <input x-model="configForm.active_revalidation_enabled" type="checkbox">
+              <span>Active Revalidation</span>
+            </label>
+          </div>
+
+          <div class="mt-3 grid grid-cols-[1fr_auto_auto] gap-2">
+            <input x-model.number="balanceForm.balance" type="number" min="0" step="0.01"
+                   class="rounded border border-border bg-white px-2 py-1.5 text-xs text-text-primary"
+                   placeholder="Set balance">
+            <button @click="setCustomBalance()" class="px-3 py-1.5 rounded bg-primary text-white text-xs font-semibold hover:bg-secondary transition">
+              Set Balance
+            </button>
+            <button @click="saveSystemConfig()" class="px-3 py-1.5 rounded bg-success text-white text-xs font-semibold hover:opacity-90 transition">
+              Apply
+            </button>
+          </div>
+
+          <div class="mt-2 flex flex-wrap gap-3 text-xs text-text-primary">
+            <label class="inline-flex items-center gap-2">
+              <input x-model="balanceForm.reset_hwm" type="checkbox">
+              <span>Reset HWM</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input x-model="balanceForm.reset_daily_start" type="checkbox">
+              <span>Reset Daily Start</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input x-model="balanceForm.update_initial_balance" type="checkbox">
+              <span>Update Initial</span>
+            </label>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between text-xs">
+            <span class="text-text-muted">
+              Current: <span class="font-semibold text-text-primary" x-text="challengeModeLabel(portfolio.challenge_mode)"></span>
+              | Guard: <span class="font-semibold" x-text="portfolio.drawdown_guard_enabled ? 'ON' : 'OFF'"></span>
+            </span>
+            <button @click="resetSystemDefaults()" class="px-2.5 py-1 rounded border border-border text-text-primary hover:bg-cyan-50 transition">
+              Default
+            </button>
+          </div>
+          <template x-if="saveMsg">
+            <div class="mt-2 text-xs text-primary" x-text="saveMsg"></div>
+          </template>
+        </div>
+
+        <!-- EQUITY CURVE -->
+        <div class="glass-card p-4">
+          <h3 class="text-sm font-semibold text-text-primary flex items-center gap-2 mb-3">
+            <i data-lucide="line-chart" class="w-4 h-4 text-primary"></i> Equity Curve
+          </h3>
+          <div class="relative" style="height: 200px;">
+            <canvas id="equityChart"></canvas>
+          </div>
+        </div>
+
+        <!-- CORRELATION MAP -->
+        <div class="glass-card p-4">
+          <h3 class="text-sm font-semibold text-text-primary flex items-center gap-2 mb-3">
+            <i data-lucide="git-branch" class="w-4 h-4 text-primary"></i> Correlation Groups
+          </h3>
+          <div class="space-y-3">
+            <template x-for="(group, name) in portfolio.correlation_status || {}" :key="name">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-semibold text-text-muted w-24" x-text="name"></span>
+                <div class="flex flex-wrap gap-2">
+                  <template x-for="p in (group.active || [])" :key="p + '_a'">
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-success/10 text-success font-medium flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                      <span x-text="p"></span>
+                    </span>
+                  </template>
+                  <template x-for="p in (group.available || [])" :key="p + '_v'">
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-text-muted font-medium flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                      <span x-text="p"></span>
+                    </span>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- TRADE JOURNAL -->
+        <div class="glass-card p-4">
+          <h3 class="text-sm font-semibold text-text-primary flex items-center gap-2 mb-3">
+            <i data-lucide="book-open" class="w-4 h-4 text-primary"></i> Trade Journal
+          </h3>
+          <template x-if="trades.length === 0">
+            <div class="text-center py-4 text-text-muted text-xs">No closed trades yet</div>
+          </template>
+          <div class="space-y-2 max-h-64 overflow-y-auto">
+            <template x-for="t in trades.slice(0, 10)" :key="t.trade_id">
+              <div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-cyan-50/50 cursor-pointer transition"
+                   @click="showPostMortemModal(t)">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-text-primary" x-text="t.pair"></span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold"
+                        :class="t.direction === 'buy' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'"
+                        x-text="(t.direction || '').toUpperCase()"></span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold"
+                        :class="resultBadge(t.result)"
+                        x-text="t.result"></span>
+                </div>
+                <div class="flex items-center gap-3 text-xs">
+                  <span :class="(t.pips || 0) >= 0 ? 'text-success' : 'text-danger'"
+                        x-text="(t.pips >= 0 ? '+' : '') + (t.pips || 0).toFixed(1) + ' pips'"></span>
+                  <span :class="((t.pnl_total ?? t.pnl ?? t.demo_pnl ?? 0) >= 0) ? 'text-success' : 'text-danger'"
+                        x-text="'$' + (Number(t.pnl_total ?? t.pnl ?? t.demo_pnl ?? 0)).toFixed(2)"></span>
+                  <template x-if="Math.abs(Number(t.realized_partial_pnl || 0)) > 0.0001">
+                    <span class="text-[10px] text-text-muted font-mono"
+                          x-text="'partial $' + Number(t.realized_partial_pnl || 0).toFixed(2)"></span>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- SCHEDULER PANEL -->
+        <div class="glass-card p-4">
+          <h3 class="text-sm font-semibold text-text-primary flex items-center gap-2 mb-3">
+            <i data-lucide="calendar-clock" class="w-4 h-4 text-primary"></i> Schedule
+          </h3>
+          <div class="space-y-2">
+            <template x-for="job in system.scheduler_jobs || defaultJobs()" :key="job.id || job.name">
+              <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+                        :class="jobPassed(job) ? 'bg-success/10 text-success' : 'bg-cyan-50 text-primary'">
+                    <template x-if="jobPassed(job)"><i data-lucide="check" class="w-3 h-3"></i></template>
+                    <template x-if="!jobPassed(job)"><i data-lucide="clock" class="w-3 h-3"></i></template>
+                  </span>
+                  <span class="font-medium text-text-primary" x-text="job.name"></span>
+                </div>
+                <span class="font-mono text-text-muted" x-text="fmtJobTime(job)"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Post-Mortem Modal -->
+  <div x-show="showPostMortem" x-cloak
+       class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4"
+       @click.self="showPostMortem = false">
+    <div class="glass-card max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6" @click.stop>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-text-primary flex items-center gap-2">
+          <i data-lucide="file-text" class="w-5 h-5 text-primary"></i>
+          Post-Mortem: <span x-text="selectedTrade?.pair"></span>
+        </h2>
+        <button @click="showPostMortem = false" class="text-text-muted hover:text-text-primary transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Summary bar -->
+      <div class="flex flex-wrap gap-3 mb-4">
+        <span class="px-3 py-1 rounded-full text-xs font-bold"
+              :class="resultBadge(selectedTrade?.result)"
+              x-text="selectedTrade?.result"></span>
+        <span class="text-xs text-text-muted">
+          <span x-text="(selectedTrade?.pips || 0).toFixed(1)"></span> pips
+        </span>
+        <span class="text-xs text-text-muted" x-text="selectedTrade?.duration_minutes + ' min'"></span>
+        <span class="text-xs text-text-muted" x-text="selectedTrade?.strategy_mode"></span>
+      </div>
+
+      <!-- Post-mortem content -->
+      <template x-if="selectedTrade?.post_mortem">
+        <div class="space-y-4">
+          <!-- What worked -->
+          <div>
+            <h4 class="text-xs font-semibold text-success uppercase tracking-wider mb-2 flex items-center gap-1">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> What Worked
+            </h4>
+            <ul class="space-y-1">
+              <template x-for="item in selectedTrade.post_mortem.what_worked || []" :key="item">
+                <li class="text-sm text-text-primary pl-4 border-l-2 border-success/30" x-text="item"></li>
+              </template>
+            </ul>
+          </div>
+
+          <!-- What didn't -->
+          <div>
+            <h4 class="text-xs font-semibold text-danger uppercase tracking-wider mb-2 flex items-center gap-1">
+              <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> What Didn't Work
+            </h4>
+            <ul class="space-y-1">
+              <template x-for="item in selectedTrade.post_mortem.what_didnt_work || []" :key="item">
+                <li class="text-sm text-text-primary pl-4 border-l-2 border-danger/30" x-text="item"></li>
+              </template>
+            </ul>
+          </div>
+
+          <!-- Lessons -->
+          <div>
+            <h4 class="text-xs font-semibold text-primary uppercase tracking-wider mb-2 flex items-center gap-1">
+              <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Lessons Learned
+            </h4>
+            <ol class="space-y-1 list-decimal list-inside">
+              <template x-for="item in selectedTrade.post_mortem.lessons || []" :key="item">
+                <li class="text-sm text-text-primary" x-text="item"></li>
+              </template>
+            </ol>
+          </div>
+
+          <!-- SL Cause -->
+          <template x-if="selectedTrade.post_mortem.sl_cause_analysis">
+            <div>
+              <h4 class="text-xs font-semibold text-warning uppercase tracking-wider mb-2 flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> SL Cause Analysis
+              </h4>
+              <p class="text-sm text-text-primary" x-text="selectedTrade.post_mortem.sl_cause_analysis"></p>
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <template x-if="!selectedTrade?.post_mortem">
+        <div class="text-center py-4 text-text-muted text-sm">No post-mortem data available</div>
+      </template>
+
+      <!-- Raw JSON toggle -->
+      <details class="mt-4">
+        <summary class="text-xs text-text-muted cursor-pointer hover:text-primary transition">Show Raw JSON</summary>
+        <pre class="mt-2 text-[11px] text-text-muted bg-cyan-50 p-3 rounded-lg overflow-x-auto whitespace-pre-wrap font-mono"
+             x-text="JSON.stringify(selectedTrade, null, 2)"></pre>
+      </details>
+    </div>
+  </div>
+
+  <!-- Analysis Detail Modal -->
+  <div x-show="showAnalysis" x-cloak
+       class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4"
+       @click.self="showAnalysis = false">
+    <div class="glass-card max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6" @click.stop>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-text-primary flex items-center gap-2">
+          <i data-lucide="search" class="w-5 h-5 text-primary"></i>
+          Analysis: <span x-text="selectedAnalysis?.pair"></span>
+        </h2>
+        <button @click="showAnalysis = false" class="text-text-muted hover:text-text-primary transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <template x-if="selectedAnalysis?.plan?.primary_setup">
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div class="glass-card p-3">
+              <span class="text-xs text-text-muted block">Direction</span>
+              <span class="font-bold" x-text="selectedAnalysis.plan.primary_setup.direction?.toUpperCase()"></span>
+            </div>
+            <div class="glass-card p-3">
+              <span class="text-xs text-text-muted block">Score</span>
+              <span class="font-bold" x-text="selectedAnalysis.plan.primary_setup.confluence_score + '/14'"></span>
+            </div>
+            <div class="glass-card p-3">
+              <span class="text-xs text-text-muted block">Entry Zone</span>
+              <span class="font-mono text-xs" x-text="selectedAnalysis.plan.primary_setup.entry_zone_low?.toFixed(5) + ' – ' + selectedAnalysis.plan.primary_setup.entry_zone_high?.toFixed(5)"></span>
+            </div>
+            <div class="glass-card p-3">
+              <span class="text-xs text-text-muted block">Strategy</span>
+              <span class="text-xs" x-text="selectedAnalysis.plan.primary_setup.strategy_mode"></span>
+            </div>
+            <div class="glass-card p-3">
+              <span class="text-xs text-text-muted block">Stop Loss</span>
+              <span class="font-mono text-danger text-xs" x-text="selectedAnalysis.plan.primary_setup.stop_loss?.toFixed(5)"></span>
+            </div>
+            <div class="glass-card p-3">
+              <span class="text-xs text-text-muted block">TP1 / TP2</span>
+              <span class="font-mono text-success text-xs" x-text="selectedAnalysis.plan.primary_setup.take_profit_1?.toFixed(5) + ' / ' + (selectedAnalysis.plan.primary_setup.take_profit_2?.toFixed(5) || '—')"></span>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="selectedAnalysis?.error">
+        <div class="bg-danger/5 border border-danger/20 rounded-lg p-3 mt-3">
+          <span class="text-sm text-danger" x-text="selectedAnalysis.error"></span>
+        </div>
+      </template>
+
+      <details class="mt-4">
+        <summary class="text-xs text-text-muted cursor-pointer hover:text-primary transition">Show Raw JSON</summary>
+        <pre class="mt-2 text-[11px] text-text-muted bg-cyan-50 p-3 rounded-lg overflow-x-auto whitespace-pre-wrap font-mono"
+             x-text="JSON.stringify(selectedAnalysis, null, 2)"></pre>
+      </details>
+    </div>
+  </div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

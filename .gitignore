@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+_test_output.txt
+_current_state.json
+
+# Environment Variables (CRITICAL — Never commit secrets!)
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+
+# Backup files
+*.bak
+
+# Logs
+*.log
+logs/
+
+# Chart Screenshots (temporary)
+charts/output/*.png
+charts/temp/*.png
+AUDIT_*.png
+PRODUCTION_*.png
+*.png
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker/.env
+
+# Utility/debug scripts (not part of production)
+_full_reset.py
+_current_state.json
+_test_output.txt
+
+# Requirements backup
+requirements.txt.bak
