@@ -517,3 +517,21 @@ class TestV3SPACatchAll:
             assert resp.status_code == 503
         finally:
             _m._FRONTEND_V3_DIR = original
+
+    @pytest.mark.asyncio
+    async def test_v3_static_assets_served(self, client, tmp_path):
+        """GET /v3/assets/file.js serves the actual file, not index.html."""
+        from dashboard.backend import main as _m
+        fake_dist = tmp_path / "dist"
+        (fake_dist / "assets").mkdir(parents=True)
+        (fake_dist / "index.html").write_text("<html>SPA</html>")
+        (fake_dist / "assets" / "app.js").write_text("console.log('hello')")
+        original = _m._FRONTEND_V3_DIR
+        _m._FRONTEND_V3_DIR = fake_dist
+        try:
+            resp = await client.get("/v3/assets/app.js")
+            assert resp.status_code == 200
+            assert "console.log" in resp.text
+            assert "SPA" not in resp.text  # Must NOT serve index.html
+        finally:
+            _m._FRONTEND_V3_DIR = original
