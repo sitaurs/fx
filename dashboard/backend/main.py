@@ -37,6 +37,12 @@ from config.settings import (
     PAIR_POINT,
 )
 
+# V3 route modules
+from dashboard.backend.routes.auth import router as auth_router
+from dashboard.backend.routes.analytics import router as analytics_router
+from dashboard.backend.routes.analytics import set_repo as set_analytics_repo
+from dashboard.backend.routes.market import router as market_router
+
 
 # ---------------------------------------------------------------------------
 # API Key authentication dependency (FIX C-05)
@@ -169,11 +175,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount V3 route modules
+app.include_router(auth_router)
+app.include_router(analytics_router)
+app.include_router(market_router)
+
 # ---------------------------------------------------------------------------
 # Static files — serve dashboard frontend
 # ---------------------------------------------------------------------------
 
 _FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+_FRONTEND_V3_DIR = Path(__file__).resolve().parent.parent / "frontend-v3" / "dist"
 
 
 @app.on_event("startup")
@@ -187,6 +199,14 @@ async def _mount_static():
             name="frontend",
         )
         logger.info("Frontend mounted from %s", _FRONTEND_DIR)
+    # V3 frontend
+    if _FRONTEND_V3_DIR.is_dir():
+        app.mount(
+            "/v3",
+            StaticFiles(directory=str(_FRONTEND_V3_DIR), html=True),
+            name="frontend-v3",
+        )
+        logger.info("Frontend V3 mounted from %s", _FRONTEND_V3_DIR)
 
 
 # ---------------------------------------------------------------------------
@@ -570,10 +590,33 @@ async def unhalt_system(
 
 @app.get("/api/analysis/live")
 async def get_live_analysis() -> list[dict]:
-    return [
-        a for a in _analyses.values()
-        if a.get("state") not in ("CLOSED", "CANCELLED")
-    ]
+    results = []
+    for a in _analyses.values():
+        if a.get("state") in ("CLOSED", "CANCELLED"):
+            continue
+        # Flatten nested plan fields so frontend gets top-level score/confidence/direction
+        item = dict(a)
+        plan = item.get("plan")
+        if plan:
+            primary = plan.get("primary_setup") or {}
+            if "confidence" not in item or item.get("confidence") is None:
+                item["confidence"] = plan.get("confidence", 0)
+            if "direction" not in item or item.get("direction") is None:
+                item["direction"] = primary.get("direction")
+            if "score" not in item or not item.get("score"):
+                item["score"] = primary.get("confluence_score", 0)
+            if "strategy_mode" not in item or item.get("strategy_mode") is None:
+                item["strategy_mode"] = plan.get("strategy_mode") or primary.get("strategy_mode")
+            if "htf_bias" not in item or item.get("htf_bias") is None:
+                item["htf_bias"] = plan.get("htf_bias")
+        else:
+            item.setdefault("confidence", 0)
+            item.setdefault("direction", None)
+            item.setdefault("score", 0)
+            item.setdefault("strategy_mode", None)
+            item.setdefault("htf_bias", None)
+        results.append(item)
+    return results
 
 
 @app.get("/api/analysis/{pair}")
@@ -595,7 +638,38 @@ async def get_pending_setups() -> list[dict]:
     lc = _lifecycle
     if not lc or not hasattr(lc, "_pending"):
         return []
-    return lc._pending.to_dashboard_list()
+    raw = lc._pending.to_dashboard_list()
+    # Normalize field names for frontend compatibility
+    results = []
+    for item in raw:
+        d = dict(item)
+        # Frontend expects 'score' (backend sends 'confluence_score')
+        if "score" not in d and "confluence_score" in d:
+            d["score"] = d["confluence_score"]
+        # Frontend expects 'expiry_at' (backend sends 'expires_at')
+        if "expiry_at" not in d and "expires_at" in d:
+            d["expiry_at"] = d["expires_at"]
+        # Strategy mode defaults
+        d.setdefault("strategy_mode", "sniper_confluence")
+        results.append(d)
+    return results
+
+
+@app.post("/api/analysis/force-scan")
+async def force_scan(
+    _key: str = Depends(require_api_key),
+) -> dict:
+    """Trigger an immediate analysis scan cycle."""
+    lc = _lifecycle
+    if not lc:
+        return {"success": False, "error": "Lifecycle not initialized"}
+    try:
+        if hasattr(lc, "run_scan_cycle"):
+            asyncio.ensure_future(lc.run_scan_cycle())
+            return {"success": True, "message": "Scan cycle triggered"}
+        return {"success": False, "error": "Scan method not available"}
+    except Exception as exc:
+        return {"success": False, "error": str(exc)}
 
 
 # ---------------------------------------------------------------------------
@@ -607,16 +681,39 @@ async def get_pending_setups() -> list[dict]:
 async def get_trades(
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
+    search: str = Query("", description="Filter by pair name"),
+    result_filter: str = Query("", description="Filter by result: win/loss/be"),
+    date_from: str = Query("", description="ISO date start"),
+    date_to: str = Query("", description="ISO date end"),
 ) -> list[dict]:
+    trades_list = []
     if _trades:
-        return _trades[offset: offset + limit]
-    if _repo:
+        trades_list = list(_trades)
+    elif _repo:
         try:
-            db_trades = await _repo.list_trades(limit=limit)
-            return [_trade_to_dict(t) for t in db_trades]
+            db_trades = await _repo.list_trades(limit=500)
+            trades_list = [_trade_to_dict(t) for t in db_trades]
         except Exception as exc:
             logger.error("DB trade query failed: %s", exc)
-    return []
+
+    # Apply filters
+    if search:
+        search_upper = search.upper()
+        trades_list = [t for t in trades_list if search_upper in (t.get("pair") or "").upper()]
+
+    if result_filter == "win":
+        trades_list = [t for t in trades_list if t.get("result") in ("TP1_HIT", "TP2_HIT", "TRAIL_PROFIT")]
+    elif result_filter == "loss":
+        trades_list = [t for t in trades_list if t.get("result") in ("SL_HIT", "TIMEOUT_LOSS")]
+    elif result_filter == "be":
+        trades_list = [t for t in trades_list if t.get("result") in ("BREAKEVEN", "TIMEOUT_BE")]
+
+    if date_from:
+        trades_list = [t for t in trades_list if (t.get("closed_at") or "") >= date_from]
+    if date_to:
+        trades_list = [t for t in trades_list if (t.get("closed_at") or "") <= date_to]
+
+    return trades_list[offset: offset + limit]
 
 
 @app.get("/api/trades/{trade_id}")
@@ -672,7 +769,7 @@ async def manual_close_position(
 
 
 def _trade_to_dict(t) -> dict:
-    return {
+    result = {
         "trade_id": t.trade_id,
         "pair": t.pair,
         "direction": t.direction,
@@ -696,6 +793,13 @@ def _trade_to_dict(t) -> dict:
         "opened_at": t.opened_at.isoformat() if t.opened_at else None,
         "closed_at": t.closed_at.isoformat() if t.closed_at else None,
     }
+    # Include post-mortem if available
+    if hasattr(t, "post_mortem_json") and t.post_mortem_json:
+        try:
+            result["post_mortem"] = json.loads(t.post_mortem_json)
+        except Exception:
+            result["post_mortem"] = None
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -743,6 +847,7 @@ async def websocket_endpoint(
 def set_repo(repo: Any) -> None:
     global _repo
     _repo = repo
+    set_analytics_repo(repo)  # Wire analytics routes
 
 
 async def load_equity_from_db() -> None:
