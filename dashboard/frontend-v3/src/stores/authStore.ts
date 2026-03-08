@@ -23,6 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('auth_user')
+    localStorage.removeItem('ws_token')
     set({ token: null, isAuthenticated: false, user: null })
   },
 

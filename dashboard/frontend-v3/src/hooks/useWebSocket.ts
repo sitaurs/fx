@@ -4,8 +4,6 @@ import { usePortfolioStore } from '../stores/portfolioStore'
 import { useAnalysisStore } from '../stores/analysisStore'
 import { useEventStore } from '../stores/eventStore'
 
-const WS_TOKEN = localStorage.getItem('ws_token') || ''
-
 export function useWebSocket() {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimer = useRef<ReturnType<typeof setTimeout>>()
@@ -16,7 +14,9 @@ export function useWebSocket() {
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
 
-    const url = `${WS_BASE}/ws${WS_TOKEN ? `?token=${WS_TOKEN}` : ''}`
+    // Read ws_token at connect time (set after login, not at module load)
+    const wsToken = localStorage.getItem('ws_token') || ''
+    const url = `${WS_BASE}/ws${wsToken ? `?token=${wsToken}` : ''}`
     const ws = new WebSocket(url)
     wsRef.current = ws
 

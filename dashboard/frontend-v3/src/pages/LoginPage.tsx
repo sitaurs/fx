@@ -20,6 +20,7 @@ export default function LoginPage() {
     try {
       const { data } = await api.post('/api/auth/login', { email, password })
       if (data.token) {
+        if (data.ws_token) localStorage.setItem('ws_token', data.ws_token)
         login(data.token, data.user)
         navigate('/', { replace: true })
       } else {

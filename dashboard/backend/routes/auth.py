@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 
-from config.settings import DASHBOARD_API_KEY
+from config.settings import DASHBOARD_API_KEY, DASHBOARD_WS_TOKEN
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +138,7 @@ async def login(req: LoginRequest) -> dict:
 
     return {
         "token": token,
+        "ws_token": DASHBOARD_WS_TOKEN or "",
         "user": {
             "email": req.email or "api-key-user",
             "role": "admin",
