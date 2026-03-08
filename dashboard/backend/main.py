@@ -199,14 +199,30 @@ async def _mount_static():
             name="frontend",
         )
         logger.info("Frontend mounted from %s", _FRONTEND_DIR)
-    # V3 frontend
-    if _FRONTEND_V3_DIR.is_dir():
+    # V3 frontend — mount assets dir for JS/CSS, add SPA catch-all route
+    _v3_assets = _FRONTEND_V3_DIR / "assets"
+    if _v3_assets.is_dir():
         app.mount(
-            "/v3",
-            StaticFiles(directory=str(_FRONTEND_V3_DIR), html=True),
-            name="frontend-v3",
+            "/v3/assets",
+            StaticFiles(directory=str(_v3_assets)),
+            name="frontend-v3-assets",
         )
-        logger.info("Frontend V3 mounted from %s", _FRONTEND_V3_DIR)
+        logger.info("Frontend V3 assets mounted from %s", _v3_assets)
+    if _FRONTEND_V3_DIR.is_dir():
+        logger.info("Frontend V3 SPA route active from %s", _FRONTEND_V3_DIR)
+
+
+# ---------------------------------------------------------------------------
+# V3 SPA catch-all — serve index.html for all /v3/* routes
+# ---------------------------------------------------------------------------
+
+@app.get("/v3/{full_path:path}")
+@app.get("/v3")
+async def v3_spa_catchall(full_path: str = ""):
+    index = _FRONTEND_V3_DIR / "index.html"
+    if index.exists():
+        return FileResponse(str(index), media_type="text/html")
+    return JSONResponse(status_code=503, content={"detail": "V3 frontend not found."})
 
 
 # ---------------------------------------------------------------------------

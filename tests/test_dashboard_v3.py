@@ -449,3 +449,71 @@ class TestJWTUtils:
         assert _verify_jwt("not.a.jwt") is None
         assert _verify_jwt("") is None
         assert _verify_jwt("single") is None
+
+
+# ---------------------------------------------------------------------------
+# V3 SPA Catch-all route tests
+# ---------------------------------------------------------------------------
+
+class TestV3SPACatchAll:
+    """Test /v3/* SPA catch-all serves index.html for all sub-routes."""
+
+    @pytest.mark.asyncio
+    async def test_v3_root(self, client, tmp_path):
+        """GET /v3 returns index.html when frontend exists."""
+        from dashboard.backend import main as _m
+        fake_dist = tmp_path / "dist"
+        fake_dist.mkdir()
+        (fake_dist / "index.html").write_text("<html>V3</html>")
+        original = _m._FRONTEND_V3_DIR
+        _m._FRONTEND_V3_DIR = fake_dist
+        try:
+            resp = await client.get("/v3")
+            assert resp.status_code == 200
+            assert "V3" in resp.text
+        finally:
+            _m._FRONTEND_V3_DIR = original
+
+    @pytest.mark.asyncio
+    async def test_v3_subroute_chart(self, client, tmp_path):
+        """GET /v3/chart returns index.html (SPA routing)."""
+        from dashboard.backend import main as _m
+        fake_dist = tmp_path / "dist"
+        fake_dist.mkdir()
+        (fake_dist / "index.html").write_text("<html>SPA</html>")
+        original = _m._FRONTEND_V3_DIR
+        _m._FRONTEND_V3_DIR = fake_dist
+        try:
+            resp = await client.get("/v3/chart")
+            assert resp.status_code == 200
+            assert "SPA" in resp.text
+        finally:
+            _m._FRONTEND_V3_DIR = original
+
+    @pytest.mark.asyncio
+    async def test_v3_deep_route(self, client, tmp_path):
+        """GET /v3/radar returns index.html (deep SPA route)."""
+        from dashboard.backend import main as _m
+        fake_dist = tmp_path / "dist"
+        fake_dist.mkdir()
+        (fake_dist / "index.html").write_text("<html>Deep</html>")
+        original = _m._FRONTEND_V3_DIR
+        _m._FRONTEND_V3_DIR = fake_dist
+        try:
+            resp = await client.get("/v3/radar")
+            assert resp.status_code == 200
+            assert "Deep" in resp.text
+        finally:
+            _m._FRONTEND_V3_DIR = original
+
+    @pytest.mark.asyncio
+    async def test_v3_missing_frontend(self, client, tmp_path):
+        """GET /v3/anything returns 503 when frontend not built."""
+        from dashboard.backend import main as _m
+        original = _m._FRONTEND_V3_DIR
+        _m._FRONTEND_V3_DIR = tmp_path / "nonexistent"
+        try:
+            resp = await client.get("/v3/chart")
+            assert resp.status_code == 503
+        finally:
+            _m._FRONTEND_V3_DIR = original
