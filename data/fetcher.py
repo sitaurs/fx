@@ -707,7 +707,8 @@ def fetch_ohlcv(
             count (int): Actual number of candles returned.
             candles (list[dict]): List of OHLCV candle dicts.
     """
-    candles = _active_backend.fetch_ohlcv(pair, timeframe, count)
+    backend = get_backend()
+    candles = backend.fetch_ohlcv(pair, timeframe, count)
     return {
         "pair": pair,
         "timeframe": timeframe,
