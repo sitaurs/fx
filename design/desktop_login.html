@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<title>AI Forex Agent - Login</title>
+<!-- Fonts & Icons -->
+
+
+
+
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0ea5e9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0a0e17",
+                        "surface-dark": "#111827",
+                        "border-dark": "#1e293b",
+                        "sidebar-dark": "#0f1320",
+                        "success": "#10b981",
+                        "danger": "#ef4444",
+                        "warning": "#f59e0b",
+                        "info": "#06b6d4",
+                        "purple": "#a855f7"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center relative overflow-hidden">
+<!-- Decorative Background -->
+<div class="absolute inset-0 z-0 opacity-[0.03] dark:opacity-10 pointer-events-none" data-alt="Abstract stock market chart background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDWp9Em6QOqeiLL_9GiDM-sZO5mpTGZo2SBsR5pFoGAMR3q5Sv0s75mUJyljUsv9EyU3BGp7Cygj6HtqAZTmHln_ZekdE-3XdslWBMTbOkeAnzT84T9ZzYl2PNkZbBpfLEUqOf_C4C1M4NzUsMNeBtRZslY75bdNovYC-HOaV4LLd600xZuDejjXLFxfUU0fGvqlQOWbl23qKi20LGJ2BBUooqXOUH52RFzMW3lkmPk5jZ0NT8tmE5ZpM5p2C0ZKlMwPMTmqyzVimWg'); background-size: cover; background-position: center;">
+</div>
+<!-- Ambient Glow -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
+<!-- Login Container -->
+<div class="relative z-10 w-full max-w-[420px] px-6 py-10 mx-4 backdrop-blur-xl bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-border-dark rounded-2xl shadow-2xl">
+<!-- Header / Logo Area -->
+<div class="flex flex-col items-center mb-8">
+<div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30 mb-5 relative overflow-hidden">
+<div class="absolute inset-0 bg-white/20 backdrop-blur-sm z-0"></div>
+<span class="material-symbols-outlined text-4xl text-white relative z-10">monitoring</span>
+</div>
+<h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">AI Forex Agent</h1>
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400">Intelligent Trading â€¢ Automated Analysis</p>
+</div>
+<!-- Login Form -->
+<form class="space-y-5">
+<!-- Email/Username -->
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1" for="username">Email or Username</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+<span class="material-symbols-outlined text-xl">person</span>
+</div>
+<input class="block w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-border-dark rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary transition-colors sm:text-sm" id="username" name="username" placeholder="Enter your email or username" type="text"/>
+</div>
+</div>
+<!-- Password -->
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1" for="password">Password</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+<span class="material-symbols-outlined text-xl">lock</span>
+</div>
+<input class="block w-full pl-10 pr-10 py-3 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-border-dark rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary focus:border-primary transition-colors sm:text-sm" id="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" type="button">
+<span class="material-symbols-outlined text-xl">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Options Row -->
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary bg-white dark:bg-slate-950" id="remember-me" name="remember-me" type="checkbox"/>
+<label class="ml-2 block text-sm text-slate-600 dark:text-slate-400 cursor-pointer" for="remember-me">
+                        Remember me
+                    </label>
+</div>
+<div class="text-sm">
+<a class="font-medium text-primary hover:text-primary/80 transition-colors" href="#">
+                        Forgot password?
+                    </a>
+</div>
+</div>
+<!-- Submit Button -->
+<div class="pt-2">
+<button class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-background-light dark:focus:ring-offset-background-dark transition-all duration-200 shadow-primary/20 hover:shadow-primary/40" type="submit">
+                    Sign In to Dashboard
+                </button>
+</div>
+</form>
+<!-- Footer -->
+<div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800/60 text-center">
+<p class="text-xs text-slate-500 dark:text-slate-500 font-medium tracking-wide">
+                Powered by Gemini AI &amp; OANDA v20
+            </p>
+</div>
+</div>
+</body></html>

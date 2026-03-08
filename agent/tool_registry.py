@@ -52,9 +52,8 @@ from tools.validator import validate_trading_plan
 # ChoCh micro filter
 from tools.choch_filter import detect_choch_micro
 
-# DXY relevance gate — DISABLED §7.10: no DXY data source available yet.
-# Re-enable when a DXY OHLCV feed is wired in.
-# from tools.dxy_gate import dxy_relevance_score
+# DXY relevance gate — ENABLED: synthetic DXY computed from OANDA pairs.
+from tools.dxy_gate import dxy_relevance_score
 
 
 # ---------------------------------------------------------------------------
@@ -75,8 +74,8 @@ ALL_TOOLS: list = [
     # Phase 3: Liquidity
     detect_eqh_eql,
     detect_sweep,
-    # Phase 4: DXY gate — DISABLED (§7.10: no data source)
-    # dxy_relevance_score,
+    # Phase 4: DXY gate — ENABLED (synthetic DXY from OANDA pairs)
+    dxy_relevance_score,
     # Phase 5: Trendlines & PA
     detect_trendlines,
     detect_pin_bar,
@@ -87,4 +86,4 @@ ALL_TOOLS: list = [
     validate_trading_plan,
 ]
 
-TOOL_COUNT: int = len(ALL_TOOLS)  # expected: 16 (dxy_gate disabled §7.10)
+TOOL_COUNT: int = len(ALL_TOOLS)  # expected: 17 (dxy_gate enabled)

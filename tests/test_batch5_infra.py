@@ -1541,22 +1541,22 @@ class TestFP08ModeSelectionConfig:
         assert isinstance(MODE_SELECTION_PRIORITY, list)
         assert len(MODE_SELECTION_PRIORITY) >= 3
 
-    def test_index_correlation_disabled_by_default(self):
-        """index_correlation is disabled by default."""
+    def test_index_correlation_enabled_by_default(self):
+        """index_correlation is enabled by default (synthetic DXY)."""
         from config.settings import MODE_SELECTION_PRIORITY
         ic = next(
             (m for m in MODE_SELECTION_PRIORITY
              if m["mode"] == "index_correlation"), None
         )
         assert ic is not None
-        assert ic["enabled"] is False
+        assert ic["enabled"] is True
 
     def test_system_prompt_uses_config(self):
         """System prompt includes mode priority from config."""
         from agent.system_prompt import build_system_prompt
         prompt = build_system_prompt()
         assert "index_correlation" in prompt
-        assert "DISABLED" in prompt
+        assert "ENABLED" in prompt
         assert "sniper_confluence" in prompt
 
 
@@ -1623,17 +1623,17 @@ class TestFP08ToolRegistry:
         names = [t.__name__ for t in ALL_TOOLS]
         assert len(names) == len(set(names)), f"Duplicates: {names}"
 
-    def test_dxy_gate_not_registered(self):
-        """dxy_relevance_score should NOT be in ALL_TOOLS (disabled §7.10)."""
+    def test_dxy_gate_registered(self):
+        """dxy_relevance_score should be in ALL_TOOLS (enabled — synthetic DXY)."""
         from agent.tool_registry import ALL_TOOLS
         names = [t.__name__ for t in ALL_TOOLS]
-        assert "dxy_relevance_score" not in names
+        assert "dxy_relevance_score" in names
 
     def test_tool_count(self):
-        """Exactly 16 tools registered (dxy_gate disabled)."""
+        """Exactly 17 tools registered (dxy_gate enabled)."""
         from agent.tool_registry import ALL_TOOLS, TOOL_COUNT
-        assert len(ALL_TOOLS) == 16
-        assert TOOL_COUNT == 16
+        assert len(ALL_TOOLS) == 17
+        assert TOOL_COUNT == 17
 
 
 class TestFP08ExtractScoreNA:
@@ -2825,9 +2825,9 @@ class TestM19DxyFeatureFlag:
         assert result["enabled"] is True
         assert result["correlation"] != 0.0
 
-    def test_config_default_is_false(self):
+    def test_config_default_is_true(self):
         from config.settings import DXY_GATE_ENABLED
-        assert DXY_GATE_ENABLED is False
+        assert DXY_GATE_ENABLED is True
 
 
 # ========================= L-30: DXY threshold documented ==================
@@ -2880,19 +2880,19 @@ class TestCON16DxySymbolNaming:
 
 # ========================= D-10: DXY gate disabled documented ===============
 
-class TestD10DxyGateDisabledDoc:
-    """D-10: DXY gate disabled status is documented."""
+class TestD10DxyGateEnabledDoc:
+    """D-10: DXY gate enabled status is documented."""
 
-    def test_docstring_has_disabled_note(self):
+    def test_docstring_has_enabled_note(self):
         import tools.dxy_gate as mod
         doc = mod.__doc__ or ""
-        assert "DISABLED" in doc or "disabled" in doc
+        assert "ENABLED" in doc or "enabled" in doc
 
-    def test_tool_registry_does_not_include_dxy(self):
-        """DXY gate should not be in ALL_TOOLS."""
+    def test_tool_registry_includes_dxy(self):
+        """DXY gate should be in ALL_TOOLS."""
         from agent.tool_registry import ALL_TOOLS
         names = [f.__name__ for f in ALL_TOOLS]
-        assert "dxy_relevance_score" not in names
+        assert "dxy_relevance_score" in names
 
     def test_dxy_gate_enabled_config_exists(self):
         """DXY_GATE_ENABLED config must exist for toggling."""

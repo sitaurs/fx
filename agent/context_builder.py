@@ -20,7 +20,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from config.settings import SWING_LOOKBACK
+from config.settings import SWING_LOOKBACK, DXY_GATE_ENABLED
 
 # --- Tools ---
 from tools.indicators import compute_atr, compute_ema, compute_rsi
@@ -33,9 +33,10 @@ from tools.trendline import detect_trendlines
 from tools.liquidity import detect_eqh_eql, detect_sweep
 from tools.price_action import detect_pin_bar, detect_engulfing
 from tools.choch_filter import detect_choch_micro
+from tools.dxy_gate import dxy_relevance_score
 
 # --- Data ---
-from data.fetcher import fetch_ohlcv
+from data.fetcher import fetch_ohlcv, fetch_synthetic_dxy
 
 logger = logging.getLogger(__name__)
 
@@ -125,6 +126,25 @@ def analyze_timeframe(
     choch_bull = detect_choch_micro(candles, direction="bullish", atr=atr)
     choch_bear = detect_choch_micro(candles, direction="bearish", atr=atr)
 
+    # ── 11. DXY Correlation Gate (synthetic DXY from OANDA pairs) ──
+    dxy_result = {"correlation": 0.0, "relevant": False, "direction": "neutral",
+                  "window_used": 0, "enabled": False}
+    if DXY_GATE_ENABLED and timeframe in ("H1", "H4"):
+        try:
+            from config.settings import DXY_CANDLE_COUNT
+            dxy_candles = fetch_synthetic_dxy(timeframe, count=DXY_CANDLE_COUNT)
+            if dxy_candles:
+                dxy_result = dxy_relevance_score(candles, dxy_candles)
+                logger.info(
+                    "[%s %s] DXY gate: corr=%.4f relevant=%s direction=%s",
+                    pair, timeframe, dxy_result["correlation"],
+                    dxy_result["relevant"], dxy_result["direction"],
+                )
+            else:
+                logger.warning("[%s %s] DXY gate: no synthetic DXY data", pair, timeframe)
+        except Exception as exc:
+            logger.warning("[%s %s] DXY gate failed: %s", pair, timeframe, exc)
+
     logger.info(
         "[%s %s] Done — ATR=%.5f  trend=%s  swings=%d  zones=%d",
         pair, timeframe, atr,
@@ -166,6 +186,8 @@ def analyze_timeframe(
         # ChoCH micro
         "choch_micro_bullish": choch_bull,
         "choch_micro_bearish": choch_bear,
+        # DXY correlation gate
+        "dxy_correlation": dxy_result,
     }
 
 
@@ -366,6 +388,24 @@ def format_context(pair: str, analyses: dict[str, dict]) -> str:
             f"\n[CHOCH MICRO]  bullish={cm_bull.get('confirmed', False)}"
             f"  bearish={cm_bear.get('confirmed', False)}"
         )
+
+        # DXY Correlation
+        dxy = data.get("dxy_correlation", {})
+        if dxy.get("enabled"):
+            lines.append(
+                f"\n[DXY CORRELATION]  corr={dxy['correlation']:.4f}"
+                f"  relevant={dxy['relevant']}"
+                f"  direction={dxy['direction']}"
+                f"  window={dxy['window_used']} bars"
+            )
+            if dxy["relevant"]:
+                if dxy["direction"] == "positive":
+                    lines.append("  → Pair moves WITH DXY (positive correlation)")
+                elif dxy["direction"] == "negative":
+                    lines.append("  → Pair moves AGAINST DXY (negative correlation)")
+                lines.append("  → DXY gate: PASS — index_correlation mode eligible")
+            else:
+                lines.append("  → DXY gate: SKIP — correlation too weak for index mode")
 
         lines.append("")  # blank line between TFs
 

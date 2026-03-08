@@ -8,9 +8,9 @@ Algorithm (masterplan 6.10):
     - Volatility spike → reduce weight.
 
 Production status (D-10):
-    DISABLED in tool_registry.py (§7.10) — no reliable DXY OHLCV data source
-    available through OANDA or Finnhub free tier.  The function itself is
-    fully implemented and tested; re-enable when a DXY feed is wired in.
+    ENABLED — synthetic DXY computed from 6 OANDA component pairs
+    (EUR/USD, USD/JPY, GBP/USD, USD/CAD, USD/SEK, USD/CHF) using the
+    official ICE DXY formula.  See data/fetcher.py:fetch_synthetic_dxy().
     ``DXY_GATE_ENABLED`` in config/settings.py controls the feature flag.
 
 Reference: masterplan.md §6.10

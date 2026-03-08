@@ -416,10 +416,10 @@ class TestMT5ProbeTimeout:
 # =========================================================================
 class TestDXYModeGuard:
 
-    def test_index_correlation_disabled_in_prompt(self):
-        """System prompt should warn that index_correlation is disabled."""
+    def test_index_correlation_enabled_in_prompt(self):
+        """System prompt should show index_correlation as ENABLED."""
         from agent.system_prompt import SYSTEM_PROMPT
-        assert "DISABLED" in SYSTEM_PROMPT
+        assert "ENABLED" in SYSTEM_PROMPT
         # FIX M-11: mode selection now driven from config, verify DXY note
         assert "DXY" in SYSTEM_PROMPT or "index_correlation" in SYSTEM_PROMPT
 

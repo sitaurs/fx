@@ -75,6 +75,7 @@ OANDA_INSTRUMENTS: dict[str, str] = {
     "USDCHF": "USD_CHF",
     "USDCAD": "USD_CAD",
     "USDJPY": "USD_JPY",
+    "USDSEK": "USD_SEK",
     # JPY crosses
     "GBPJPY": "GBP_JPY",
     "EURJPY": "EUR_JPY",
@@ -713,6 +714,111 @@ def fetch_ohlcv(
         "count": len(candles),
         "candles": candles,
     }
+
+
+# =========================================================================
+# Synthetic DXY — ICE US Dollar Index computed from 6 OANDA pairs
+# =========================================================================
+
+def fetch_synthetic_dxy(
+    timeframe: str,
+    count: int = 200,
+) -> list[dict]:
+    """Compute synthetic DXY OHLCV from 6 component currency pairs.
+
+    Uses the official ICE DXY formula:
+        DXY = 50.14348112 × EURUSD^(-0.576) × USDJPY^(0.136)
+              × GBPUSD^(-0.119) × USDCAD^(0.091)
+              × USDSEK^(0.042) × USDCHF^(0.036)
+
+    All 6 component pairs are fetched from OANDA and aligned by index.
+    Each candle's OHLC is computed independently through the formula.
+
+    Args:
+        timeframe: "M1", "M5", "M15", "H1", "H4", "D1", "W1".
+        count: Number of candles to fetch per component pair (default 200).
+
+    Returns:
+        List of synthetic DXY candle dicts with keys:
+        {open, high, low, close, volume, time}.
+        Empty list if any critical component pair fails to fetch.
+    """
+    from config.settings import DXY_ICE_CONSTANT, DXY_COMPONENT_PAIRS
+
+    backend = get_backend()
+
+    # Step 1: Fetch all 6 component pairs
+    component_candles: dict[str, list[dict]] = {}
+    for pair, _exp, _inv in DXY_COMPONENT_PAIRS:
+        try:
+            candles = backend.fetch_ohlcv(pair, timeframe, count)
+            if not candles:
+                logger.warning("Synthetic DXY: no candles for %s %s", pair, timeframe)
+                return []
+            component_candles[pair] = candles
+        except Exception as exc:
+            logger.error("Synthetic DXY: failed to fetch %s: %s", pair, exc)
+            return []
+
+    # Step 2: Find the minimum length across all components
+    min_len = min(len(c) for c in component_candles.values())
+    if min_len < 10:
+        logger.warning("Synthetic DXY: insufficient data (%d bars)", min_len)
+        return []
+
+    # Step 3: Compute DXY for each bar using ICE formula
+    dxy_candles: list[dict] = []
+    for i in range(min_len):
+        dxy_ohlc: dict[str, float] = {}
+        valid = True
+
+        for price_field in ("open", "high", "low", "close"):
+            product = DXY_ICE_CONSTANT
+            for pair, exponent, _inv in DXY_COMPONENT_PAIRS:
+                price = component_candles[pair][i].get(price_field, 0.0)
+                if price <= 0:
+                    valid = False
+                    break
+                product *= price ** exponent
+            if not valid:
+                break
+            dxy_ohlc[price_field] = round(product, 4)
+
+        if not valid:
+            continue
+
+        # Ensure OHLC consistency: high >= max(O,C), low <= min(O,C)
+        dxy_ohlc["high"] = max(dxy_ohlc["high"], dxy_ohlc["open"], dxy_ohlc["close"])
+        dxy_ohlc["low"] = min(dxy_ohlc["low"], dxy_ohlc["open"], dxy_ohlc["close"])
+
+        # Use the first component's time and sum volumes
+        total_vol = sum(
+            component_candles[pair][i].get("volume", 0)
+            for pair, _, _ in DXY_COMPONENT_PAIRS
+        )
+        dxy_candles.append({
+            "open": dxy_ohlc["open"],
+            "high": dxy_ohlc["high"],
+            "low": dxy_ohlc["low"],
+            "close": dxy_ohlc["close"],
+            "volume": total_vol,
+            "time": component_candles[DXY_COMPONENT_PAIRS[0][0]][i].get("time", ""),
+        })
+
+    logger.info(
+        "Synthetic DXY computed: %d bars from %s (components: %d bars each)",
+        len(dxy_candles), timeframe, min_len,
+    )
+    return dxy_candles
+
+
+async def fetch_synthetic_dxy_async(
+    timeframe: str,
+    count: int = 200,
+) -> list[dict]:
+    """Async wrapper for fetch_synthetic_dxy."""
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(None, fetch_synthetic_dxy, timeframe, count)
 
 
 # =========================================================================

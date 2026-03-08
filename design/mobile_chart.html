@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <title>AI Forex Agent Mobile Chart View</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#0ea5e9",
+            "background-light": "#f5f7f8",
+            "background-dark": "#0a0e17",
+            "surface-dark": "#0d1117",
+            "surface-lighter": "#111827",
+            "accent-green": "#10b981",
+            "accent-red": "#ef4444",
+            "accent-orange": "#f59e0b",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+
+
+
+
+  <style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+
+<body
+  class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex justify-center pb-20">
+  <div class="w-full max-w-md bg-surface-dark relative flex flex-col min-h-screen font-display">
+    <!-- Top Bar -->
+    <div class="flex items-center p-4 pb-2 justify-between bg-surface-dark sticky top-0 z-10 border-b border-slate-800">
+      <div
+        class="text-slate-300 flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-surface-lighter rounded-full transition-colors">
+        <span class="material-symbols-outlined text-2xl">arrow_back</span>
+      </div>
+      <div class="flex items-center gap-1 cursor-pointer group">
+        <h2 class="text-slate-100 text-xl font-bold leading-tight tracking-tight">EURUSD</h2>
+        <span
+          class="material-symbols-outlined text-slate-400 group-hover:text-slate-200 transition-colors">expand_more</span>
+      </div>
+      <div
+        class="flex items-center justify-end px-3 py-1 rounded-full bg-accent-green/10 border border-accent-green/20">
+        <div class="size-2 rounded-full bg-accent-green mr-2 animate-pulse"></div>
+        <p class="text-accent-green text-sm font-semibold tracking-wide uppercase">Live</p>
+      </div>
+    </div>
+    <!-- Timeframe Selector -->
+    <div class="overflow-x-auto scrollbar-hide bg-surface-dark">
+      <div class="flex px-4 min-w-max border-b border-slate-800">
+        <a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-colors pb-3 pt-4 px-4"
+          href="#">
+          <p class="text-sm font-semibold tracking-wide">M5</p>
+        </a>
+        <a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-colors pb-3 pt-4 px-4"
+          href="#">
+          <p class="text-sm font-semibold tracking-wide">M15</p>
+        </a>
+        <a class="flex flex-col items-center justify-center border-b-2 border-primary text-primary pb-3 pt-4 px-4"
+          href="#">
+          <p class="text-sm font-bold tracking-wide">H1</p>
+        </a>
+        <a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-colors pb-3 pt-4 px-4"
+          href="#">
+          <p class="text-sm font-semibold tracking-wide">H4</p>
+        </a>
+        <a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-colors pb-3 pt-4 px-4"
+          href="#">
+          <p class="text-sm font-semibold tracking-wide">D1</p>
+        </a>
+      </div>
+    </div>
+    <!-- Chart Area -->
+    <div class="relative w-full h-[55vh] bg-[#0d1117] overflow-hidden border-b border-slate-800">
+      <div class="absolute inset-0 opacity-20"
+        style="background-image: linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px); background-size: 40px 40px;">
+      </div>
+      <!-- Abstract Chart Representation -->
+      <div class="absolute inset-0 p-4 pt-10 flex items-end">
+        <!-- Price Lines -->
+        <div
+          class="absolute w-full border-t-2 border-dashed border-accent-green top-1/4 opacity-60 pointer-events-none">
+          <span class="absolute right-2 -top-5 text-xs text-accent-green font-mono bg-surface-dark px-1 rounded">TP1
+            1.08600</span>
+        </div>
+        <div class="absolute w-full border-t-2 border-dashed border-primary top-1/2 opacity-60 pointer-events-none">
+          <span class="absolute right-2 -top-5 text-xs text-primary font-mono bg-surface-dark px-1 rounded">Buy
+            1.08250</span>
+        </div>
+        <div class="absolute w-full border-t-2 border-dashed border-accent-red top-3/4 opacity-60 pointer-events-none">
+          <span class="absolute right-2 -top-5 text-xs text-accent-red font-mono bg-surface-dark px-1 rounded">SL
+            1.07950</span>
+        </div>
+        <div
+          class="absolute w-full border-t-2 border-dotted border-accent-orange top-[60%] opacity-80 pointer-events-none">
+          <span class="absolute right-2 -top-5 text-xs text-accent-orange font-mono bg-surface-dark px-1 rounded">Buy
+            Limit 1.08000</span>
+        </div>
+        <!-- Candles -->
+        <div class="flex items-end justify-between w-[90%] h-full pt-10 px-2 space-x-1">
+          <div class="relative w-4 flex justify-center">
+            <div class="absolute w-0.5 h-12 bg-accent-green top-20"></div>
+            <div class="w-full h-8 bg-accent-green rounded-sm mb-20 relative z-10"></div>
+          </div>
+          <div class="relative w-4 flex justify-center">
+            <div class="absolute w-0.5 h-16 bg-accent-red top-24"></div>
+            <div class="w-full h-10 bg-accent-red rounded-sm mb-16 relative z-10"></div>
+          </div>
+          <div class="relative w-4 flex justify-center">
+            <div class="absolute w-0.5 h-10 bg-accent-green top-32"></div>
+            <div class="w-full h-6 bg-accent-green rounded-sm mb-16 relative z-10"></div>
+          </div>
+          <div class="relative w-4 flex justify-center">
+            <div class="absolute w-0.5 h-20 bg-accent-green top-16"></div>
+            <div class="w-full h-14 bg-accent-green rounded-sm mb-20 relative z-10"></div>
+          </div>
+          <div class="relative w-4 flex justify-center">
+            <div class="absolute w-0.5 h-8 bg-accent-red top-12"></div>
+            <div class="w-full h-4 bg-accent-red rounded-sm mb-24 relative z-10"></div>
+          </div>
+          <div class="relative w-4 flex justify-center">
+            <div class="absolute w-0.5 h-24 bg-accent-green top-4"></div>
+            <div class="w-full h-16 bg-accent-green rounded-sm mb-[4.5rem] relative z-10"></div>
+          </div>
+          <div class="relative w-4 flex justify-center">
+            <div class="absolute w-0.5 h-14 bg-accent-red top-8"></div>
+            <div class="w-full h-8 bg-accent-red rounded-sm mb-[5.5rem] relative z-10"></div>
+          </div>
+          <div class="relative w-4 flex justify-center">
+            <div class="absolute w-0.5 h-32 bg-accent-green -top-4"></div>
+            <div class="w-full h-20 bg-accent-green rounded-sm mb-[6.5rem] relative z-10"></div>
+          </div>
+        </div>
+        <!-- Current Price Tag -->
+        <div
+          class="absolute right-0 top-[35%] bg-primary text-white text-xs font-mono py-1 px-2 rounded-l flex items-center shadow-lg">
+          1.08370
+          <div
+            class="absolute -left-1.5 top-1/2 -translate-y-1/2 border-y-4 border-y-transparent border-r-4 border-r-primary">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Indicators Toggle Row -->
+    <div class="flex px-4 py-3 gap-2 bg-surface-dark border-b border-slate-800 overflow-x-auto scrollbar-hide">
+      <button
+        class="px-3 py-1.5 rounded-lg bg-primary/20 text-primary border border-primary/30 text-xs font-semibold whitespace-nowrap transition-colors">EMA
+        20/50</button>
+      <button
+        class="px-3 py-1.5 rounded-lg bg-surface-lighter text-slate-300 border border-slate-700 hover:bg-slate-800 text-xs font-semibold whitespace-nowrap transition-colors">RSI
+        14</button>
+      <button
+        class="px-3 py-1.5 rounded-lg bg-surface-lighter text-slate-300 border border-slate-700 hover:bg-slate-800 text-xs font-semibold whitespace-nowrap transition-colors">ATR
+        14</button>
+      <button
+        class="px-3 py-1.5 rounded-lg bg-surface-lighter text-slate-300 border border-slate-700 hover:bg-slate-800 text-xs font-semibold whitespace-nowrap transition-colors flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px]">add</span> More
+      </button>
+    </div>
+    <!-- Trade Info Card -->
+    <div class="p-4 bg-surface-dark flex-1">
+      <div class="flex flex-col gap-4 rounded-xl bg-surface-lighter border border-slate-800 p-4 shadow-sm mb-4">
+        <div class="flex justify-between items-start">
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-center gap-2">
+              <span
+                class="px-2 py-0.5 bg-primary/20 text-primary rounded text-xs font-bold uppercase tracking-wider">Buy</span>
+              <p class="text-slate-100 text-base font-bold leading-tight">EURUSD</p>
+            </div>
+            <p class="text-slate-400 text-sm font-medium flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm text-primary">my_location</span>
+              Sniper Confluence
+            </p>
+          </div>
+          <div class="flex flex-col items-end">
+            <p class="text-accent-green text-2xl font-bold tracking-tight">+$12.40</p>
+            <p class="text-accent-green/80 text-xs font-medium">+15.2 pips</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-y-3 gap-x-2 py-3 border-y border-slate-800/60">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-slate-500 text-xs uppercase tracking-wider font-semibold">Entry</span>
+            <span class="text-slate-200 text-sm font-mono">1.08250</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-slate-500 text-xs uppercase tracking-wider font-semibold">Current</span>
+            <span class="text-primary text-sm font-mono font-bold">1.08370</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-slate-500 text-xs uppercase tracking-wider font-semibold">Lots</span>
+            <span class="text-slate-200 text-sm font-mono">0.10</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-slate-500 text-xs uppercase tracking-wider font-semibold">SL</span>
+            <span class="text-accent-red text-sm font-mono">1.07950</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-slate-500 text-xs uppercase tracking-wider font-semibold">TP</span>
+            <span class="text-accent-green text-sm font-mono">1.08600</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-slate-500 text-xs uppercase tracking-wider font-semibold">Swap</span>
+            <span class="text-slate-400 text-sm font-mono">-0.12</span>
+          </div>
+        </div>
+        <button
+          class="w-full flex items-center justify-center gap-2 rounded-lg bg-accent-red/10 text-accent-red border border-accent-red/20 hover:bg-accent-red/20 py-2.5 transition-colors font-semibold shadow-sm">
+          <span class="material-symbols-outlined text-lg">close</span>
+          Close Trade
+        </button>
+      </div>
+      <!-- Pending Order Card -->
+      <div
+        class="flex items-center justify-between gap-3 rounded-xl bg-surface-lighter border border-accent-orange/30 p-3 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="size-8 rounded-full bg-accent-orange/10 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-accent-orange text-sm">schedule</span>
+          </div>
+          <div class="flex flex-col">
+            <p class="text-slate-200 text-sm font-semibold">Buy Limit <span
+                class="text-slate-400 font-normal">0.05</span></p>
+            <p class="text-accent-orange text-xs font-mono mt-0.5">@ 1.08000</p>
+          </div>
+        </div>
+        <button
+          class="px-3 py-1.5 rounded-md bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700 transition-colors">
+          Cancel
+        </button>
+      </div>
+    </div>
+    <!-- Spacer for fixed bottom nav -->
+    <div class="h-16"></div>
+    <!-- Bottom Nav Bar -->
+    <div
+      class="fixed bottom-0 w-full flex border-t border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark px-2 pb-safe pt-1 z-20">
+      <a class="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
+        href="#dashboard">
+        <span class="material-symbols-outlined text-2xl">dashboard</span>
+        <p class="text-[10px] font-medium tracking-wide">Dashboard</p>
+      </a>
+      <a class="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-primary" href="#chart">
+        <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+        <p class="text-[10px] font-semibold tracking-wide">Chart</p>
+      </a>
+      <a class="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
+        href="#positions">
+        <span class="material-symbols-outlined text-2xl">work</span>
+        <p class="text-[10px] font-medium tracking-wide">Positions</p>
+      </a>
+      <a class="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
+        href="#radar">
+        <span class="material-symbols-outlined text-2xl">track_changes</span>
+        <p class="text-[10px] font-medium tracking-wide">AI Radar</p>
+      </a>
+      <a class="flex flex-1 flex-col items-center justify-center gap-1 py-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
+        href="#more">
+        <span class="material-symbols-outlined text-2xl">more_horiz</span>
+        <p class="text-[10px] font-medium tracking-wide">More</p>
+      </a>
+    </div>
+  </div>
+</body>
+
+</html>

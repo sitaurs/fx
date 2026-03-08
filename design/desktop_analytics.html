@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<title>AI Forex Agent Performance Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0ea5e9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0a0e17",
+                        "surface-dark": "#111827",
+                        "border-dark": "#1e293b",
+                        "sidebar-dark": "#0f1320",
+                        "success": "#10b981",
+                        "danger": "#ef4444",
+                        "warning": "#f59e0b",
+                        "info": "#06b6d4",
+                        "purple": "#a855f7"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased">
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<div class="flex h-full w-[280px] flex-col justify-between bg-white dark:bg-sidebar-dark border-r border-slate-200 dark:border-border-dark p-4 shrink-0">
+<div class="flex flex-col gap-6">
+<div class="flex gap-3 items-center">
+<div class="bg-primary/20 bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 flex items-center justify-center text-primary font-bold">
+                        AI
+                    </div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-base font-semibold leading-tight">AI Forex Agent</h1>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium leading-normal">v1.2.0 Pro</p>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">dashboard</span>
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 dark:bg-primary/20" href="#">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<p class="text-primary text-sm font-semibold">Analytics</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">work</span>
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium">Positions</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">history</span>
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium">Trade History</p>
+</a>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">settings</span>
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium">Settings</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">help</span>
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium">Help</p>
+</a>
+</div>
+</div>
+<!-- Main Content -->
+<div class="flex-1 flex flex-col h-full overflow-hidden">
+<!-- Header -->
+<header class="flex items-center justify-between border-b border-slate-200 dark:border-border-dark px-8 py-4 bg-white dark:bg-background-dark shrink-0">
+<div class="flex items-center gap-4">
+<h2 class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">Analytics</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex h-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-card-dark p-1 border border-slate-200 dark:border-border-dark">
+<label class="flex cursor-pointer h-full items-center justify-center rounded-md px-4 has-[:checked]:bg-white dark:has-[:checked]:bg-slate-800 has-[:checked]:shadow-sm has-[:checked]:text-slate-900 dark:has-[:checked]:text-white text-slate-500 dark:text-slate-400 text-sm font-medium transition-all">
+<span>Last 7 Days</span>
+<input class="sr-only" name="timeframe" type="radio" value="7d"/>
+</label>
+<label class="flex cursor-pointer h-full items-center justify-center rounded-md px-4 has-[:checked]:bg-white dark:has-[:checked]:bg-slate-800 has-[:checked]:shadow-sm has-[:checked]:text-slate-900 dark:has-[:checked]:text-white text-slate-500 dark:text-slate-400 text-sm font-medium transition-all">
+<span>This Month</span>
+<input checked="" class="sr-only" name="timeframe" type="radio" value="1m"/>
+</label>
+<label class="flex cursor-pointer h-full items-center justify-center rounded-md px-4 has-[:checked]:bg-white dark:has-[:checked]:bg-slate-800 has-[:checked]:shadow-sm has-[:checked]:text-slate-900 dark:has-[:checked]:text-white text-slate-500 dark:text-slate-400 text-sm font-medium transition-all">
+<span>All Time</span>
+<input class="sr-only" name="timeframe" type="radio" value="all"/>
+</label>
+</div>
+<button class="flex items-center gap-2 rounded-lg h-10 px-4 bg-primary text-white text-sm font-semibold shadow-sm hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Download Report</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="max-w-[1400px] mx-auto flex flex-col gap-6">
+<!-- Row 1: Stat Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-5">
+<div class="flex justify-between items-start">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Win Rate</p>
+<span class="material-symbols-outlined text-primary text-[20px]">trending_up</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative size-12 flex items-center justify-center">
+<svg class="size-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-slate-100 dark:text-slate-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="100, 100" stroke-width="3"></path>
+<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="68.4, 100" stroke-width="3"></path>
+</svg>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-2xl font-bold">68.4%</p>
+<p class="text-success text-xs font-medium flex items-center mt-0.5"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 2.1%</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-5">
+<div class="flex justify-between items-start">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Avg RR</p>
+<span class="material-symbols-outlined text-info text-[20px]">balance</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-2xl font-bold">1:2.4</p>
+<p class="text-danger text-xs font-medium flex items-center mt-1"><span class="material-symbols-outlined text-[14px]">arrow_downward</span> 0.1</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-5">
+<div class="flex justify-between items-start">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Total P/L</p>
+<span class="material-symbols-outlined text-success text-[20px]">attach_money</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-2xl font-bold">+$2,450.80</p>
+<p class="text-success text-xs font-medium flex items-center mt-1"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 15.2%</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-5">
+<div class="flex justify-between items-start">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Profit Factor</p>
+<span class="material-symbols-outlined text-primary text-[20px]">insights</span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<p class="text-slate-900 dark:text-white text-2xl font-bold">1.8</p>
+<p class="text-success text-xs font-medium flex items-center mt-1"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 0.2</p>
+</div>
+<div class="w-16 h-8 flex items-end gap-0.5">
+<div class="w-full bg-slate-200 dark:bg-slate-700 rounded-t h-[40%]"></div>
+<div class="w-full bg-slate-200 dark:bg-slate-700 rounded-t h-[60%]"></div>
+<div class="w-full bg-primary rounded-t h-[80%]"></div>
+<div class="w-full bg-primary rounded-t h-[100%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 2: Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 flex flex-col rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-6">
+<div class="flex justify-between items-center mb-6">
+<div>
+<h3 class="text-slate-900 dark:text-white text-lg font-semibold">Performance Overview</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Cumulative P/L vs Daily Returns</p>
+</div>
+<div class="flex gap-4 items-center">
+<div class="flex items-center gap-2"><div class="size-3 rounded-full bg-primary"></div><span class="text-xs text-slate-500 dark:text-slate-400">Cumulative P/L</span></div>
+<div class="flex items-center gap-2"><div class="size-3 rounded-full bg-slate-200 dark:bg-slate-700"></div><span class="text-xs text-slate-500 dark:text-slate-400">Daily Return</span></div>
+</div>
+</div>
+<div class="flex-1 min-h-[240px] relative w-full flex items-end justify-between gap-2 pt-4 border-b border-slate-200 dark:border-border-dark pb-2">
+<!-- Abstract chart representation -->
+<div class="absolute inset-0 top-4 bottom-2 pointer-events-none">
+<svg class="w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 100 100">
+<path class="text-primary opacity-50" d="M0,80 L10,75 L20,85 L30,60 L40,55 L50,40 L60,45 L70,25 L80,20 L90,30 L100,10" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<path class="text-primary opacity-10" d="M0,80 L10,75 L20,85 L30,60 L40,55 L50,40 L60,45 L70,25 L80,20 L90,30 L100,10 L100,100 L0,100 Z" fill="currentColor"></path>
+</svg>
+</div>
+<!-- Bars -->
+<div class="w-full bg-success/80 rounded-t h-[20%] z-10"></div>
+<div class="w-full bg-success/80 rounded-t h-[35%] z-10"></div>
+<div class="w-full bg-danger/80 rounded-t h-[15%] z-10"></div>
+<div class="w-full bg-success/80 rounded-t h-[45%] z-10"></div>
+<div class="w-full bg-success/80 rounded-t h-[60%] z-10"></div>
+<div class="w-full bg-danger/80 rounded-t h-[25%] z-10"></div>
+<div class="w-full bg-success/80 rounded-t h-[80%] z-10"></div>
+</div>
+<div class="flex justify-between mt-2 text-xs text-slate-500 dark:text-slate-400 px-2">
+<span>1st</span><span>5th</span><span>10th</span><span>15th</span><span>20th</span><span>25th</span><span>30th</span>
+</div>
+</div>
+<div class="flex flex-col rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-6">
+<h3 class="text-slate-900 dark:text-white text-lg font-semibold mb-6">Win/Loss Distribution</h3>
+<div class="flex-1 flex flex-col items-center justify-center relative min-h-[200px]">
+<div class="relative size-40 flex items-center justify-center">
+<svg class="size-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-danger" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="31.6, 100" stroke-dashoffset="0" stroke-width="4"></path>
+<path class="text-success" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="68.4, 100" stroke-dashoffset="-31.6" stroke-width="4"></path>
+</svg>
+<div class="absolute flex flex-col items-center justify-center">
+<span class="text-2xl font-bold text-slate-900 dark:text-white">142</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Total Trades</span>
+</div>
+</div>
+</div>
+<div class="flex justify-center gap-6 mt-4">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-success"></div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">Win (97)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-danger"></div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">Loss (45)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 3: Details & Pairs -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 flex flex-col rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-0 overflow-hidden">
+<div class="p-6 border-b border-slate-200 dark:border-border-dark flex justify-between items-center">
+<h3 class="text-slate-900 dark:text-white text-lg font-semibold">Strategy Performance</h3>
+<button class="text-primary text-sm font-medium hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase text-slate-500 dark:text-slate-400 font-semibold tracking-wider">
+<th class="px-6 py-3 border-b border-slate-200 dark:border-border-dark">Strategy</th>
+<th class="px-6 py-3 border-b border-slate-200 dark:border-border-dark text-right">Trades</th>
+<th class="px-6 py-3 border-b border-slate-200 dark:border-border-dark text-right">Win Rate</th>
+<th class="px-6 py-3 border-b border-slate-200 dark:border-border-dark text-right">Net P/L</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-100 dark:border-slate-800/50">
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">Trend Continuation</td>
+<td class="px-6 py-4 text-right text-slate-600 dark:text-slate-400">84</td>
+<td class="px-6 py-4 text-right text-slate-600 dark:text-slate-400">72.5%</td>
+<td class="px-6 py-4 text-right text-success font-medium">+$523.40</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-100 dark:border-slate-800/50">
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">Mean Reversion</td>
+<td class="px-6 py-4 text-right text-slate-600 dark:text-slate-400">42</td>
+<td class="px-6 py-4 text-right text-slate-600 dark:text-slate-400">66.0%</td>
+<td class="px-6 py-4 text-right text-success font-medium">+$2,450.80</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20">
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">Breakout Momentum</td>
+<td class="px-6 py-4 text-right text-slate-600 dark:text-slate-400">16</td>
+<td class="px-6 py-4 text-right text-slate-600 dark:text-slate-400">66.0%</td>
+<td class="px-6 py-4 text-right text-success font-medium">+$180.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="flex flex-col rounded-xl border border-slate-200 dark:border-border-dark bg-white dark:bg-card-dark p-6">
+<h3 class="text-slate-900 dark:text-white text-lg font-semibold mb-6">Pair Performance</h3>
+<div class="flex flex-col gap-5 flex-1 justify-center">
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="font-medium text-slate-700 dark:text-slate-300">EUR/USD</span>
+<span class="text-success font-medium">+$523</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 80%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="font-medium text-slate-700 dark:text-slate-300">GBP/JPY</span>
+<span class="text-success font-medium">+$523</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="font-medium text-slate-700 dark:text-slate-300">XAU/USD</span>
+<span class="text-success font-medium">+$523</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 50%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="font-medium text-slate-700 dark:text-slate-300">USD/JPY</span>
+<span class="text-danger font-medium">-$700</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+<div class="bg-danger h-2 rounded-full" style="width: 15%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

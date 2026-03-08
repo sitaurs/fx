@@ -277,10 +277,32 @@ CORRELATION_GROUPS: dict[str, list[str]] = {
 # DXY / Index Correlation Gate (masterplan §6.10, M-19)
 # ---------------------------------------------------------------------------
 # Feature flag: when False, dxy_relevance_score() returns neutral immediately.
-# Set to True when a DXY OHLCV data feed is available (OANDA, Finnhub, etc.).
-DXY_GATE_ENABLED: bool = _env_bool("DXY_GATE_ENABLED", False)
+# Enabled now that synthetic DXY is computed from OANDA component pairs.
+DXY_GATE_ENABLED: bool = _env_bool("DXY_GATE_ENABLED", True)
 # Base window for rolling Pearson correlation (M-18: adaptive adjusts ±).
 DXY_DEFAULT_WINDOW: int = int(os.getenv("DXY_DEFAULT_WINDOW", "48"))
+
+# ---------------------------------------------------------------------------
+# Synthetic DXY — ICE US Dollar Index formula components
+# ---------------------------------------------------------------------------
+# Official ICE DXY formula:
+#   DXY = 50.14348112 × EURUSD^(-0.576) × USDJPY^(0.136) × GBPUSD^(-0.119)
+#                     × USDCAD^(0.091) × USDSEK^(0.042) × USDCHF^(0.036)
+#
+# Each entry: (oanda_pair, exponent, is_inverted)
+#   is_inverted=True for pairs quoted as XXX/USD (EUR/USD, GBP/USD)
+#   because the formula uses USD/XXX convention internally.
+DXY_ICE_CONSTANT: float = 50.14348112
+DXY_COMPONENT_PAIRS: list[tuple[str, float, bool]] = [
+    ("EURUSD", -0.576, False),   # EUR/USD — largest weight
+    ("USDJPY",  0.136, False),   # USD/JPY
+    ("GBPUSD", -0.119, False),   # GBP/USD
+    ("USDCAD",  0.091, False),   # USD/CAD
+    ("USDSEK",  0.042, False),   # USD/SEK
+    ("USDCHF",  0.036, False),   # USD/CHF
+]
+# Candle count for DXY computation — needs enough bars for correlation window
+DXY_CANDLE_COUNT: int = int(os.getenv("DXY_CANDLE_COUNT", "200"))
 
 # ---------------------------------------------------------------------------
 # Cooldown after invalidation (masterplan Section 12)
@@ -394,8 +416,8 @@ CHALLENGE_CENT_TP_MULTIPLIER: float = float(os.getenv("CHALLENGE_CENT_TP_MULTIPL
 MODE_SELECTION_PRIORITY: list[dict] = [
     {
         "mode": "index_correlation",
-        "enabled": _env_bool("MODE_INDEX_CORRELATION_ENABLED", False),
-        "note": "DXY data not available via Finnhub — disabled by default",
+        "enabled": _env_bool("MODE_INDEX_CORRELATION_ENABLED", True),
+        "note": "Synthetic DXY from OANDA component pairs",
     },
     {
         "mode": "sniper_confluence",

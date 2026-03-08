@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <title>AI Forex Agent Mobile Settings</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0ea5e9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0a0e17",
+                        "surface-dark": "#111827",
+                        "border-dark": "#1e293b",
+                        "sidebar-dark": "#0f1320",
+                        "success": "#10b981",
+                        "danger": "#ef4444",
+                        "warning": "#f59e0b",
+                        "info": "#06b6d4",
+                        "purple": "#a855f7"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+
+
+
+
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen pb-[72px]">
+    <!-- Sticky Header -->
+    <div
+        class="sticky top-0 z-50 flex items-center bg-background-light dark:bg-background-dark p-4 border-b border-slate-200 dark:border-border-dark justify-between">
+        <button class="flex size-10 shrink-0 items-center justify-center text-slate-700 dark:text-slate-300">
+            <span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+        </button>
+        <h2 class="text-lg font-bold leading-tight flex-1 text-center">Settings</h2>
+        <button class="flex w-12 items-center justify-end">
+            <span class="text-primary text-base font-semibold">Save</span>
+        </button>
+    </div>
+    <div class="p-4 space-y-6">
+        <!-- System Status Card -->
+        <div
+            class="bg-surface-dark rounded-xl p-4 shadow-sm border border-border-dark flex flex-col gap-3 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+            <div class="flex justify-between items-start z-10">
+                <div>
+                    <h3 class="text-lg font-bold">System Status</h3>
+                    <p class="text-sm text-slate-400 mt-1">Uptime: 4d 12h 32m</p>
+                </div>
+                <div
+                    class="flex items-center gap-2 bg-success/20 text-success px-2.5 py-1 rounded-full text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                    Bot Running
+                </div>
+            </div>
+            <div class="flex z-10 mt-2">
+                <span
+                    class="bg-warning/20 text-warning px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">local_fire_department</span>
+                    Extreme Mode Active
+                </span>
+            </div>
+        </div>
+        <!-- Section 1: Trading Mode -->
+        <div class="space-y-2">
+            <h4 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">Trading
+                Mode</h4>
+            <div
+                class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark overflow-hidden">
+                <button
+                    class="w-full flex items-center gap-3 p-4 border-b border-slate-200 dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <div class="flex items-center justify-center rounded-lg bg-warning/20 text-warning shrink-0 size-8">
+                        <span class="material-symbols-outlined text-[20px]">emoji_events</span>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <p class="text-base font-medium">Challenge Mode</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-400">
+                        <span class="text-sm">FTMO 100k</span>
+                        <span class="material-symbols-outlined text-xl">chevron_right</span>
+                    </div>
+                </button>
+                <div class="p-4 border-b border-slate-200 dark:border-border-dark">
+                    <div class="flex justify-between items-center mb-3">
+                        <p class="text-base font-medium">Position Sizing</p>
+                    </div>
+                    <div class="flex bg-slate-100 dark:bg-background-dark p-1 rounded-lg">
+                        <button
+                            class="flex-1 py-1.5 text-sm font-medium rounded-md bg-white dark:bg-surface-dark shadow-sm text-slate-900 dark:text-slate-100">Risk
+                            %</button>
+                        <button
+                            class="flex-1 py-1.5 text-sm font-medium rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">Fixed
+                            Lot</button>
+                    </div>
+                </div>
+                <div class="p-4 flex justify-between items-center">
+                    <p class="text-base font-medium">Risk per Trade</p>
+                    <div class="flex items-center gap-3">
+                        <button
+                            class="size-8 rounded-full bg-slate-100 dark:bg-background-dark flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            <span class="material-symbols-outlined text-sm">remove</span>
+                        </button>
+                        <span class="font-semibold text-base w-12 text-center">1.0%</span>
+                        <button
+                            class="size-8 rounded-full bg-slate-100 dark:bg-background-dark flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Section 2: Risk Management -->
+        <div class="space-y-2">
+            <h4 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">Risk
+                Management</h4>
+            <div
+                class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-border-dark">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex items-center justify-center rounded-lg bg-success/20 text-success shrink-0 size-8">
+                            <span class="material-symbols-outlined text-[20px]">shield</span>
+                        </div>
+                        <p class="text-base font-medium">Drawdown Guard</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input checked="" class="sr-only peer" type="checkbox" value="" />
+                        <div
+                            class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-success">
+                        </div>
+                    </label>
+                </div>
+                <div class="p-4 flex justify-between items-center border-b border-slate-200 dark:border-border-dark">
+                    <p class="text-base text-slate-600 dark:text-slate-300">Daily DD Limit</p>
+                    <div class="flex items-center gap-3">
+                        <button
+                            class="size-8 rounded-full bg-slate-100 dark:bg-background-dark flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            <span class="material-symbols-outlined text-sm">remove</span>
+                        </button>
+                        <span class="font-semibold text-base w-12 text-center">4.5%</span>
+                        <button
+                            class="size-8 rounded-full bg-slate-100 dark:bg-background-dark flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 flex justify-between items-center">
+                    <p class="text-base text-slate-600 dark:text-slate-300">Total DD Limit</p>
+                    <div class="flex items-center gap-3">
+                        <button
+                            class="size-8 rounded-full bg-slate-100 dark:bg-background-dark flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            <span class="material-symbols-outlined text-sm">remove</span>
+                        </button>
+                        <span class="font-semibold text-base w-12 text-center">8.0%</span>
+                        <button
+                            class="size-8 rounded-full bg-slate-100 dark:bg-background-dark flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Section 3: AI Engine -->
+        <div class="space-y-2">
+            <h4 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">AI Engine
+            </h4>
+            <div
+                class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark overflow-hidden">
+                <button
+                    class="w-full flex items-center justify-between p-4 border-b border-slate-200 dark:border-border-dark hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex items-center justify-center rounded-lg bg-purple/20 text-purple shrink-0 size-8">
+                            <span class="material-symbols-outlined text-[20px]">psychology</span>
+                        </div>
+                        <p class="text-base font-medium">Model Selection</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-primary/20 text-primary px-2 py-0.5 rounded text-xs font-semibold">Pro</span>
+                        <span class="material-symbols-outlined text-xl text-slate-400">chevron_right</span>
+                    </div>
+                </button>
+                <div class="p-4 flex justify-between items-center border-b border-slate-200 dark:border-border-dark">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex items-center justify-center rounded-lg bg-slate-100 dark:bg-background-dark text-slate-500 shrink-0 size-8">
+                            <span class="material-symbols-outlined text-[20px]">sync</span>
+                        </div>
+                        <p class="text-base font-medium">Auto Re-validation</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input checked="" class="sr-only peer" type="checkbox" value="" />
+                        <div
+                            class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                        </div>
+                    </label>
+                </div>
+                <div class="p-4 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm text-slate-600 dark:text-slate-300">Re-validation Interval</p>
+                        <span class="text-sm font-semibold">4h</span>
+                    </div>
+                    <input
+                        class="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                        max="24" min="1" type="range" value="4" />
+                </div>
+            </div>
+        </div>
+        <!-- Section 5: Connections -->
+        <div class="space-y-2">
+            <h4 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">
+                Connections</h4>
+            <div
+                class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-border-dark">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex items-center justify-center rounded bg-slate-100 dark:bg-background-dark shrink-0 size-8 font-bold text-xs text-slate-600 dark:text-slate-300">
+                            OAN
+                        </div>
+                        <p class="text-base font-medium">OANDA API</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="size-2 rounded-full bg-success"></span>
+                        <span class="text-slate-500 dark:text-slate-400">Connected</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-border-dark">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex items-center justify-center rounded bg-slate-100 dark:bg-background-dark shrink-0 size-8 font-bold text-xs text-slate-600 dark:text-slate-300">
+                            MT5
+                        </div>
+                        <p class="text-base font-medium">MetaTrader 5</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="size-2 rounded-full bg-success"></span>
+                        <span class="text-slate-500 dark:text-slate-400">Connected</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex items-center justify-center rounded bg-[#25D366]/20 text-[#25D366] shrink-0 size-8">
+                            <span class="material-symbols-outlined text-[20px]">chat</span>
+                        </div>
+                        <p class="text-base font-medium">WhatsApp Alerts</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="size-2 rounded-full bg-warning"></span>
+                        <span class="text-slate-500 dark:text-slate-400">Syncing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Danger Zone -->
+        <div class="pt-4 pb-8">
+            <button
+                class="w-full bg-danger/10 text-danger border border-danger/20 rounded-xl py-3.5 font-semibold text-base flex items-center justify-center gap-2 hover:bg-danger/20 transition-colors">
+                <span class="material-symbols-outlined">power_settings_new</span>
+                Emergency Stop Bot
+            </button>
+            <p class="text-xs text-center text-slate-500 mt-3">This will immediately close all open positions and halt
+                trading.</p>
+        </div>
+    </div>
+    <!-- Bottom Nav Bar -->
+    <div
+        class="fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-border-dark bg-white/90 dark:bg-surface-dark/90 backdrop-blur-md px-4 pb-safe pt-2">
+        <div class="flex justify-between items-center max-w-md mx-auto h-14">
+            <a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400"
+                href="#dashboard">
+                <span class="material-symbols-outlined text-2xl">dashboard</span>
+                <p class="text-[10px] font-medium">Dashboard</p>
+            </a>
+            <a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400"
+                href="#chart">
+                <span class="material-symbols-outlined text-2xl">monitoring</span>
+                <p class="text-[10px] font-medium">Chart</p>
+            </a>
+            <a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400"
+                href="#positions">
+                <span class="material-symbols-outlined text-2xl">work</span>
+                <p class="text-[10px] font-medium">Positions</p>
+            </a>
+            <a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400"
+                href="#radar">
+                <span class="material-symbols-outlined text-2xl">track_changes</span>
+                <p class="text-[10px] font-medium">AI Radar</p>
+            </a>
+            <a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#more">
+                <span class="material-symbols-outlined text-2xl"
+                    style="font-variation-settings: 'FILL' 1;">more_horiz</span>
+                <p class="text-[10px] font-semibold">More</p>
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>

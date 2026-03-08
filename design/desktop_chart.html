@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<title>AI Forex Agent - Live Chart</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0ea5e9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0a0e17",
+                        "surface-dark": "#111827",
+                        "border-dark": "#1e293b",
+                        "sidebar-dark": "#0f1320",
+                        "success": "#10b981",
+                        "danger": "#ef4444",
+                        "warning": "#f59e0b",
+                        "info": "#06b6d4",
+                        "purple": "#a855f7"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased flex">
+<!-- Sidebar -->
+<aside class="w-64 bg-sidebar-dark border-r border-border-color flex-shrink-0 flex flex-col h-screen sticky top-0">
+<div class="p-6 flex items-center gap-3 border-b border-border-color">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div>
+<h1 class="text-slate-100 font-bold text-base leading-tight">AI Forex Agent</h1>
+<p class="text-slate-400 text-xs font-medium">Pro Plan</p>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px] fill-current">show_chart</span>
+<span class="text-sm font-medium">Chart</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+<span class="text-sm font-medium">Orders</span>
+</a>
+<div class="mt-8 mb-2 px-3">
+<p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Analysis</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">insights</span>
+<span class="text-sm font-medium">Signals</span>
+<span class="ml-auto bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="text-sm font-medium">History</span>
+</a>
+<div class="mt-auto pt-4 flex flex-col gap-1 border-t border-border-color">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">help_outline</span>
+<span class="text-sm font-medium">Help &amp; Support</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+<!-- Header -->
+<header class="h-16 flex items-center justify-between px-6 border-b border-border-color bg-background-dark flex-shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-slate-800/50 rounded-lg p-1 border border-border-color">
+<button class="px-3 py-1.5 bg-slate-700 text-slate-200 text-sm font-semibold rounded shadow-sm">EURUSD</button>
+<button class="px-3 py-1.5 text-slate-400 hover:text-slate-200 text-sm font-medium rounded transition-colors">GBPUSD</button>
+<button class="px-3 py-1.5 text-slate-400 hover:text-slate-200 text-sm font-medium rounded transition-colors">XAUUSD</button>
+<button class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<div class="h-6 w-px bg-border-color mx-2"></div>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-xs font-semibold rounded transition-colors">M1</button>
+<button class="px-2.5 py-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-xs font-semibold rounded transition-colors">M5</button>
+<button class="px-2.5 py-1 bg-primary/10 text-primary text-xs font-bold rounded transition-colors">M15</button>
+<button class="px-2.5 py-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-xs font-semibold rounded transition-colors">H1</button>
+<button class="px-2.5 py-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-xs font-semibold rounded transition-colors">H4</button>
+<button class="px-2.5 py-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 text-xs font-semibold rounded transition-colors">D1</button>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-accent-green/10 border border-accent-green/20 rounded-full">
+<div class="w-2 h-2 rounded-full bg-accent-green animate-pulse"></div>
+<span class="text-accent-green text-xs font-bold tracking-wide uppercase">Live Market</span>
+</div>
+<button class="flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:text-slate-100 hover:bg-slate-800/50 rounded-lg transition-colors border border-transparent hover:border-border-color">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+<span class="text-sm font-medium">Auto Scroll</span>
+</button>
+<div class="h-6 w-px bg-border-color mx-2"></div>
+<button class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 rounded-lg transition-colors relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-accent-green p-[2px]">
+<div class="w-full h-full rounded-full bg-background-dark border-2 border-background-dark bg-center bg-cover" data-alt="User profile portrait" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDyQZNpalRiq2m8Yk19vnucjzZoLlFCsv_fXXGA-E9TM_dLVFBDwLLyEO5AbuO8s0Ze4pd_KRUTOnjTAYc8NSL1-aHwgq71RNwxTjxlng4TrtsxDuzQz9Qz4GbyBaNDkgILuuLsVfW2Y4bfj-ZGD-Z2cdWWJyNdJVn3zowYi-3P0qUsiGRUhfJskPYWADFw87mTkQp1XYxrc42QjjAU1yYvWVVIVT15NrSBsTOA5IWlCi8mYVqBtriGXCCeCmG8x6-rPp0qJg6dFrKI')"></div>
+</div>
+</div>
+</header>
+<div class="flex-1 flex overflow-hidden">
+<!-- Chart Area -->
+<div class="flex-1 flex flex-col bg-chart-bg relative">
+<!-- Chart Toolbar Top -->
+<div class="absolute top-4 left-4 z-10 flex gap-2">
+<div class="bg-background-dark/80 backdrop-blur border border-border-color rounded-lg p-2 flex flex-col gap-1 shadow-lg">
+<div class="flex items-center gap-2">
+<span class="text-slate-100 font-bold text-lg">EURUSD</span>
+<span class="text-slate-400 text-xs">Euro / U.S. Dollar</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-accent-green font-mono text-2xl font-bold">1.08262</span>
+<span class="text-accent-green flex items-center text-xs font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_drop_up</span>
+                                0.0012 (+0.11%)
+                            </span>
+</div>
+</div>
+</div>
+<!-- Main Chart Mockup -->
+<div class="flex-1 relative w-full h-full overflow-hidden flex items-end justify-end pb-8 pr-16 border-r border-border-color">
+<!-- Background Grid -->
+<div class="absolute inset-0 grid grid-cols-12 grid-rows-6 opacity-5 pointer-events-none">
+<!-- Repeated grid lines -->
+<div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-b border-white"></div>
+<div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-b border-white"></div>
+<div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-b border-white"></div>
+<div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-b border-white"></div>
+<div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-r border-b border-white"></div><div class="border-b border-white"></div>
+<div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div class="border-r border-white"></div><div></div>
+</div>
+<!-- Entry Zone Box -->
+<div class="absolute left-[20%] right-[30%] top-[40%] h-[15%] bg-primary/10 border border-primary/30 z-0"></div>
+<!-- Interactive Lines -->
+<!-- TP2 -->
+<div class="absolute left-0 right-0 top-[15%] border-t border-dashed border-accent-green/60 z-10 flex items-center">
+<div class="bg-accent-green/20 text-accent-green text-[10px] px-2 py-0.5 rounded-r border-y border-r border-accent-green/40 absolute left-0 font-mono">TP 2</div>
+<div class="bg-accent-green/20 text-accent-green text-[10px] px-2 py-0.5 rounded-l border-y border-l border-accent-green/40 absolute right-0 font-mono">1.08500</div>
+</div>
+<!-- TP1 -->
+<div class="absolute left-0 right-0 top-[30%] border-t border-dashed border-accent-green/60 z-10 flex items-center">
+<div class="bg-accent-green/20 text-accent-green text-[10px] px-2 py-0.5 rounded-r border-y border-r border-accent-green/40 absolute left-0 font-mono">TP 1</div>
+<div class="bg-accent-green/20 text-accent-green text-[10px] px-2 py-0.5 rounded-l border-y border-l border-accent-green/40 absolute right-0 font-mono">1.08350</div>
+</div>
+<!-- Active Buy Entry -->
+<div class="absolute left-0 right-0 top-[45%] border-t-2 border-dashed border-primary z-10 flex items-center">
+<div class="bg-primary text-white text-[10px] px-2 py-0.5 rounded-r absolute left-0 font-mono font-bold flex items-center gap-1">
+                            BUY 0.5 <span class="text-white/80 font-normal">#12345</span>
+</div>
+<div class="bg-primary text-white text-[10px] px-2 py-0.5 rounded-l absolute right-0 font-mono font-bold">1.08250</div>
+<div class="absolute right-[80px] -mt-5 bg-background-dark/80 backdrop-blur border border-primary/50 text-primary text-[10px] px-1.5 py-0.5 rounded font-mono">+12 pips</div>
+</div>
+<!-- Pending Buy Limit -->
+<div class="absolute left-0 right-0 top-[60%] border-t border-dashed border-accent-yellow/80 z-10 flex items-center">
+<div class="bg-accent-yellow/20 text-accent-yellow text-[10px] px-2 py-0.5 rounded-r border-y border-r border-accent-yellow/40 absolute left-0 font-mono">BUY LIMIT</div>
+<div class="bg-accent-yellow/20 text-accent-yellow text-[10px] px-2 py-0.5 rounded-l border-y border-l border-accent-yellow/40 absolute right-0 font-mono">1.08100</div>
+</div>
+<!-- Stop Loss -->
+<div class="absolute left-0 right-0 top-[75%] border-t border-dashed border-accent-red/80 z-10 flex items-center">
+<div class="bg-accent-red/20 text-accent-red text-[10px] px-2 py-0.5 rounded-r border-y border-r border-accent-red/40 absolute left-0 font-mono">SL</div>
+<div class="bg-accent-red/20 text-accent-red text-[10px] px-2 py-0.5 rounded-l border-y border-l border-accent-red/40 absolute right-0 font-mono">1.07950</div>
+</div>
+<!-- Live Price Line -->
+<div class="absolute left-0 right-0 top-[42%] border-t border-accent-green z-20 flex items-center">
+<div class="absolute right-0 translate-x-full bg-accent-green text-background-dark text-[11px] px-2 py-0.5 font-mono font-bold shadow-[0_0_10px_rgba(16,185,129,0.5)] z-30">1.08262</div>
+<div class="absolute right-0 w-2 h-2 bg-accent-green rounded-full -mt-1 -mr-1 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+</div>
+<!-- Candlesticks Mockup (Simplified visual representation) -->
+<div class="absolute bottom-0 left-0 right-0 top-0 flex items-end justify-between px-10 pb-10 z-0">
+<!-- Red Candle -->
+<div class="relative w-2 flex flex-col items-center ml-4">
+<div class="w-px h-16 bg-accent-red absolute top-[-30px]"></div>
+<div class="w-2 h-20 bg-accent-red mb-12"></div>
+<div class="w-px h-10 bg-accent-red absolute bottom-[8px]"></div>
+</div>
+<!-- Green Candle -->
+<div class="relative w-2 flex flex-col items-center">
+<div class="w-px h-10 bg-accent-green absolute top-[-10px]"></div>
+<div class="w-2 h-16 bg-accent-green mb-32 border border-accent-green/50"></div>
+<div class="w-px h-8 bg-accent-green absolute bottom-[120px]"></div>
+</div>
+<!-- Red Candle -->
+<div class="relative w-2 flex flex-col items-center">
+<div class="w-px h-24 bg-accent-red absolute top-[20px]"></div>
+<div class="w-2 h-12 bg-accent-red mb-36"></div>
+<div class="w-px h-12 bg-accent-red absolute bottom-[132px]"></div>
+</div>
+<!-- Green Candle -->
+<div class="relative w-2 flex flex-col items-center">
+<div class="w-px h-14 bg-accent-green absolute top-[-20px]"></div>
+<div class="w-2 h-24 bg-accent-green mb-[120px] border border-accent-green/50"></div>
+<div class="w-px h-16 bg-accent-green absolute bottom-[104px]"></div>
+</div>
+<!-- Green Candle (Current) -->
+<div class="relative w-2 flex flex-col items-center mr-24">
+<div class="w-px h-12 bg-accent-green absolute top-[-30px]"></div>
+<div class="w-2 h-32 bg-accent-green mb-[140px] border border-accent-green/50 shadow-[0_0_8px_rgba(16,185,129,0.3)]"></div>
+<div class="w-px h-8 bg-accent-green absolute bottom-[132px]"></div>
+</div>
+</div>
+</div>
+<!-- Y-Axis (Price) -->
+<div class="absolute right-0 top-0 bottom-8 w-16 bg-background-dark/90 border-l border-border-color flex flex-col justify-between py-8 text-[10px] text-slate-500 font-mono items-center z-10">
+<span>1.08550</span>
+<span>1.08450</span>
+<span>1.08350</span>
+<span>1.08250</span>
+<span>1.08150</span>
+<span>1.08050</span>
+<span>1.07950</span>
+<span>1.07850</span>
+</div>
+<!-- X-Axis (Time) -->
+<div class="h-8 border-t border-border-color bg-background-dark flex items-center justify-between px-10 pr-24 text-[10px] text-slate-500 font-mono z-10 flex-shrink-0">
+<span>08:00</span>
+<span>09:00</span>
+<span>10:00</span>
+<span>11:00</span>
+<span>12:00</span>
+<span>13:00</span>
+<span>14:00</span>
+<span>15:00</span>
+</div>
+<!-- Indicators Bottom Strip -->
+<div class="h-10 border-t border-border-color bg-sidebar-dark flex items-center px-4 gap-4 flex-shrink-0">
+<span class="text-xs font-semibold text-slate-400">Indicators:</span>
+<button class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800 text-slate-300 text-xs hover:bg-slate-700 transition-colors">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                        EMA (20, 50)
+                        <span class="material-symbols-outlined text-[14px] ml-1 opacity-50">visibility</span>
+</button>
+<button class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800 text-slate-300 text-xs hover:bg-slate-700 transition-colors">
+<span class="w-2 h-2 rounded-full bg-accent-yellow"></span>
+                        RSI (14)
+                        <span class="material-symbols-outlined text-[14px] ml-1 opacity-50">visibility</span>
+</button>
+<button class="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-xs transition-colors">
+<span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                        ATR (14)
+                        <span class="material-symbols-outlined text-[14px] ml-1 opacity-50">visibility_off</span>
+</button>
+<button class="ml-auto w-6 h-6 flex items-center justify-center rounded hover:bg-slate-800 text-slate-400 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+<!-- Right Panel (Trade Info & Analysis) -->
+<aside class="w-[300px] bg-background-dark border-l border-border-color flex flex-col flex-shrink-0 overflow-y-auto">
+<!-- Active Trade Card -->
+<div class="p-4 border-b border-border-color bg-slate-900/30">
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary">work</span>
+                            Active Trade
+                        </h2>
+<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Buy</span>
+</div>
+<div class="bg-chart-bg rounded-lg p-3 border border-border-color mb-3">
+<div class="flex justify-between items-baseline mb-1">
+<span class="text-xs text-slate-400">EURUSD</span>
+<span class="text-xs font-mono text-slate-300">Lot: 0.50</span>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Floating P/L</p>
+<p class="text-xl font-bold text-accent-green">+$12.40</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Pips</p>
+<p class="text-sm font-bold text-accent-green">+12.0</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 mb-4">
+<div class="bg-slate-800/50 rounded p-2 border border-border-color/50">
+<p class="text-[10px] text-slate-500 mb-0.5">Entry</p>
+<p class="text-xs font-mono text-slate-200">1.08250</p>
+</div>
+<div class="bg-slate-800/50 rounded p-2 border border-border-color/50">
+<p class="text-[10px] text-slate-500 mb-0.5">Stop Loss</p>
+<p class="text-xs font-mono text-accent-red">1.07950</p>
+</div>
+</div>
+<button class="w-full bg-accent-red hover:bg-accent-red/90 text-white text-sm font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">close</span>
+                        Close Trade
+                    </button>
+</div>
+<!-- AI Analysis Section -->
+<div class="p-4 border-b border-border-color">
+<h2 class="text-sm font-bold text-slate-100 flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-[18px] text-accent-yellow">psychology</span>
+                        AI Analysis
+                    </h2>
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs text-slate-400">Setup Confidence</span>
+<div class="flex items-center gap-2">
+<div class="w-24 h-2 bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[60%]"></div>
+</div>
+<span class="text-xs font-bold text-slate-200">8.5/14</span>
+</div>
+</div>
+<ul class="space-y-3">
+<li class="flex gap-2">
+<span class="material-symbols-outlined text-[16px] text-accent-green flex-shrink-0 mt-0.5">check_circle</span>
+<div>
+<p class="text-xs font-medium text-slate-200">Bullish Engulfing H1</p>
+<p class="text-[10px] text-slate-500">Strong reversal pattern detected at major support zone.</p>
+</div>
+</li>
+<li class="flex gap-2">
+<span class="material-symbols-outlined text-[16px] text-accent-green flex-shrink-0 mt-0.5">check_circle</span>
+<div>
+<p class="text-xs font-medium text-slate-200">RSI Divergence</p>
+<p class="text-[10px] text-slate-500">Hidden bullish divergence on M15 timeframe.</p>
+</div>
+</li>
+<li class="flex gap-2">
+<span class="material-symbols-outlined text-[16px] text-accent-yellow flex-shrink-0 mt-0.5">warning</span>
+<div>
+<p class="text-xs font-medium text-slate-200">Upcoming News</p>
+<p class="text-[10px] text-slate-500">USD CPI data release in 2 hours. High volatility expected.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- Pending Setups -->
+<div class="p-4">
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-slate-400">schedule</span>
+                            Pending Setups
+                        </h2>
+<span class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">1</span>
+</div>
+<div class="bg-slate-800/30 rounded-lg p-3 border border-border-color hover:border-slate-600 transition-colors cursor-pointer">
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-bold text-slate-200">EURUSD</span>
+<span class="text-[10px] bg-accent-yellow/20 text-accent-yellow px-1.5 py-0.5 rounded uppercase font-semibold">Buy Limit</span>
+</div>
+<div class="flex justify-between items-center text-xs font-mono text-slate-400">
+<span>@ 1.08100</span>
+<span>Lot: 0.25</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</body></html>

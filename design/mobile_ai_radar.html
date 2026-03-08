@@ -1,0 +1,266 @@
+﻿<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<title>AI Forex Agent Mobile AI Radar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0ea5e9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0a0e17",
+                        "surface-dark": "#111827",
+                        "border-dark": "#1e293b",
+                        "sidebar-dark": "#0f1320",
+                        "success": "#10b981",
+                        "danger": "#ef4444",
+                        "warning": "#f59e0b",
+                        "info": "#06b6d4",
+                        "purple": "#a855f7"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+
+
+
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
+<!-- Sticky Top Bar -->
+<div class="sticky top-0 z-50 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-border-dark">
+<div class="flex items-center justify-between p-4 pb-2">
+<button class="flex size-10 items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<div class="flex items-center gap-2 flex-1 justify-center">
+<h2 class="text-lg font-bold leading-tight tracking-tight">AI Radar</h2>
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+</div>
+<div class="flex w-10 justify-end">
+<button class="flex items-center justify-center rounded-full bg-primary/10 text-primary h-10 w-10 hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-xl">radar</span>
+</button>
+</div>
+</div>
+<!-- Info Bar -->
+<div class="flex items-center gap-3 px-4 py-2 bg-slate-100 dark:bg-slate-800/50">
+<span class="material-symbols-outlined text-primary text-sm">info</span>
+<p class="text-xs text-slate-600 dark:text-slate-300 flex-1 truncate font-medium">Last scan: 5 min ago â€¢ London Session â€¢ API: 142/500</p>
+</div>
+</div>
+<!-- Main Content Area (Scrollable) -->
+<div class="flex-1 overflow-y-auto pb-24 px-4 py-4 space-y-4">
+<!-- Card 1: XAUUSD (Top Score) -->
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden flex flex-col">
+<div class="p-4 border-b border-slate-100 dark:border-border-dark">
+<div class="flex items-start justify-between mb-3">
+<div>
+<h3 class="text-lg font-bold">XAUUSD</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-sm font-medium text-slate-500 dark:text-slate-400">Score:</span>
+<span class="text-sm font-bold text-success">9.2/14</span>
+</div>
+</div>
+<button class="flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 h-8 px-3 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors gap-1 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-sm">bar_chart</span>
+            View Chart
+          </button>
+</div>
+<!-- Gradient Score Bar -->
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
+<div class="h-full bg-gradient-to-r from-success to-success w-[65%] rounded-full"></div>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success text-success dark:bg-success/30 dark:text-success border border-success dark:border-success/50">BUY</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success text-success dark:bg-success/30 dark:text-success border border-success dark:border-success/50">TRIGGERED</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">Scalping Channel</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-warning text-warning dark:bg-warning/30 dark:text-warning border border-warning dark:border-warning/50">RR 1:3.5</span>
+</div>
+</div>
+<div class="p-4 grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-800/30">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider mb-1">Entry Zone</p>
+<p class="font-medium text-slate-900 dark:text-slate-100">2320.50 - 2322.00</p>
+</div>
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider mb-1">SL / TP</p>
+<p class="font-medium text-slate-900 dark:text-slate-100"><span class="text-danger">2315.00</span> / <span class="text-success">2335.00</span></p>
+</div>
+<!-- Checklist -->
+<div class="col-span-2 mt-2">
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider mb-2">Confluence Checklist</p>
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div class="flex items-center gap-1 text-success dark:text-success"><span class="material-symbols-outlined text-[14px]">check_circle</span> Trend Align</div>
+<div class="flex items-center gap-1 text-success dark:text-success"><span class="material-symbols-outlined text-[14px]">check_circle</span> Volatility OK</div>
+<div class="flex items-center gap-1 text-success dark:text-success"><span class="material-symbols-outlined text-[14px]">check_circle</span> Key Level Break</div>
+<div class="flex items-center gap-1 text-slate-400 dark:text-slate-500"><span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span> Session Volume</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: EURUSD -->
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden flex flex-col">
+<div class="p-4 border-b border-slate-100 dark:border-border-dark">
+<div class="flex items-start justify-between mb-3">
+<div>
+<h3 class="text-lg font-bold">EURUSD</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-sm font-medium text-slate-500 dark:text-slate-400">Score:</span>
+<span class="text-sm font-bold text-primary">8.5/14</span>
+</div>
+</div>
+<button class="flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 h-8 px-3 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors gap-1 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-sm">bar_chart</span>
+            View Chart
+          </button>
+</div>
+<!-- Gradient Score Bar -->
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
+<div class="h-full bg-gradient-to-r from-primary to-blue-500 w-[60%] rounded-full"></div>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-danger text-danger dark:bg-danger/30 dark:text-danger border border-danger dark:border-danger/50">SELL</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warning text-warning dark:bg-warning/30 dark:text-warning border border-warning dark:border-warning/50">PENDING</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">Breakout Pullback</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-warning text-warning dark:bg-warning/30 dark:text-warning border border-warning dark:border-warning/50">RR 1:2.8</span>
+</div>
+</div>
+<div class="p-4 grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-800/30">
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider mb-1">Entry Zone</p>
+<p class="font-medium text-slate-900 dark:text-slate-100">1.08200 - 1.08350</p>
+</div>
+<div>
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider mb-1">SL / TP</p>
+<p class="font-medium text-slate-900 dark:text-slate-100"><span class="text-danger">1.07950</span> / <span class="text-success">1.0750</span></p>
+</div>
+</div>
+</div>
+<!-- Card 3: GBPUSD -->
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden flex flex-col">
+<div class="p-4 border-b border-slate-100 dark:border-border-dark">
+<div class="flex items-start justify-between mb-3">
+<div>
+<h3 class="text-lg font-bold">GBPUSD</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-sm font-medium text-slate-500 dark:text-slate-400">Score:</span>
+<span class="text-sm font-bold text-warning">7.2/14</span>
+</div>
+</div>
+<button class="flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 h-8 px-3 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors gap-1 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-sm">bar_chart</span>
+            View Chart
+          </button>
+</div>
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
+<div class="h-full bg-gradient-to-r from-warning to-warning w-[50%] rounded-full"></div>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success text-success dark:bg-success/30 dark:text-success border border-success dark:border-success/50">BUY</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">WAITING</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">Support Bounce</span>
+</div>
+</div>
+<div class="p-4 grid grid-cols-2 gap-4 text-sm bg-slate-50 dark:bg-slate-800/30 opacity-75">
+<div class="col-span-2 text-center text-slate-500 dark:text-slate-400 text-xs italic">Awaiting further confluence</div>
+</div>
+</div>
+<!-- Rejected Cards Section -->
+<div class="mt-6">
+<h4 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 px-1">Rejected Setups</h4>
+<div class="space-y-3">
+<!-- Card: GBPJPY (Rejected) -->
+<div class="bg-white/50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden flex flex-col opacity-60 grayscale-[30%]">
+<div class="p-3">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-base font-bold text-slate-700 dark:text-slate-300">GBPJPY</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-500">Score:</span>
+<span class="text-xs font-bold text-slate-500 dark:text-slate-500">4.1/14</span>
+</div>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-danger text-danger dark:bg-danger/40 dark:text-danger border border-danger dark:border-danger/50 uppercase">Rejected</span>
+</div>
+</div>
+</div>
+<!-- Card: USDCHF (Rejected) -->
+<div class="bg-white/50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-border-dark shadow-sm overflow-hidden flex flex-col opacity-60 grayscale-[30%]">
+<div class="p-3">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-base font-bold text-slate-700 dark:text-slate-300">USDCHF</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-xs font-medium text-slate-500 dark:text-slate-500">Score:</span>
+<span class="text-xs font-bold text-slate-500 dark:text-slate-500">2.5/14</span>
+</div>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-danger text-danger dark:bg-danger/40 dark:text-danger border border-danger dark:border-danger/50 uppercase">Rejected</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Correlation Groups (Collapsible) -->
+<div class="mt-6 border border-slate-200 dark:border-border-dark rounded-xl overflow-hidden bg-white dark:bg-surface-dark">
+<button class="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">lock</span>
+<span class="font-semibold text-sm">Correlation Groups</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 transition-transform">expand_more</span>
+</button>
+<div class="p-4 pt-0 border-t border-slate-100 dark:border-slate-800/50 hidden">
+<!-- Content would go here if expanded, left empty for now as it's collapsible but showing state -->
+<p class="text-xs text-slate-500 dark:text-slate-400">Some trades are blocked to avoid over-exposure to correlated pairs.</p>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<div class="fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark pb-safe z-50">
+<div class="flex justify-around items-end h-16 px-2 pb-2">
+<a class="flex flex-col items-center justify-center gap-1 w-16 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors" href="#dashboard">
+<span class="material-symbols-outlined text-2xl">dashboard</span>
+<span class="text-[10px] font-medium tracking-wide">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-16 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors" href="#chart">
+<span class="material-symbols-outlined text-2xl">monitoring</span>
+<span class="text-[10px] font-medium tracking-wide">Chart</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-16 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors" href="#positions">
+<span class="material-symbols-outlined text-2xl">work</span>
+<span class="text-[10px] font-medium tracking-wide">Positions</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-16 text-primary" href="#radar">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">track_changes</span>
+<span class="text-[10px] font-semibold tracking-wide">AI Radar</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-16 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors" href="#more">
+<span class="material-symbols-outlined text-2xl">more_horiz</span>
+<span class="text-[10px] font-medium tracking-wide">More</span>
+</a>
+</div>
+</div>
+</body></html>
