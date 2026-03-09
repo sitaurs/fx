@@ -9,10 +9,15 @@ interface AuthState {
   initFromStorage: () => void
 }
 
+// Read persisted auth state eagerly so ProtectedRoute sees it on first render
+const _storedToken = localStorage.getItem('auth_token')
+const _storedUserRaw = localStorage.getItem('auth_user')
+const _storedUser = _storedUserRaw ? JSON.parse(_storedUserRaw) : null
+
 export const useAuthStore = create<AuthState>((set) => ({
-  token: null,
-  isAuthenticated: false,
-  user: null,
+  token: _storedToken,
+  isAuthenticated: !!_storedToken,
+  user: _storedUser,
 
   login: (token, user) => {
     localStorage.setItem('auth_token', token)
@@ -24,6 +29,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('auth_token')
     localStorage.removeItem('auth_user')
     localStorage.removeItem('ws_token')
+    localStorage.removeItem('api_key')
     set({ token: null, isAuthenticated: false, user: null })
   },
 

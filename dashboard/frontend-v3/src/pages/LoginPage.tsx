@@ -27,14 +27,10 @@ export default function LoginPage() {
         setError('Invalid response from server')
       }
     } catch (err: unknown) {
-      // Fallback: if no auth endpoint yet, use API key mode
-      if (password) {
-        localStorage.setItem('api_key', password)
-        login(password, { username: email || 'admin', email: email || 'admin@localhost' })
-        navigate('/', { replace: true })
-      } else {
-        setError('Invalid credentials')
-      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const axErr = err as any
+      const msg = axErr?.response?.data?.detail || 'Invalid credentials'
+      setError(msg)
     } finally {
       setLoading(false)
     }

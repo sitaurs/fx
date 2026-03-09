@@ -12,7 +12,9 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone, timedelta
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+
+from dashboard.backend.routes.auth import require_auth
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,7 @@ async def get_candles(
     pair: str,
     timeframe: str = Query("H1", description="Candle granularity: M1, M5, M15, H1, H4, D1"),
     count: int = Query(200, ge=1, le=1000),
+    _user: str = Depends(require_auth),
 ) -> dict:
     """Fetch OHLCV candles from OANDA v20 API."""
     import asyncio

@@ -16,7 +16,9 @@ import logging
 from collections import defaultdict
 from datetime import datetime, timezone, timedelta
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+
+from dashboard.backend.routes.auth import require_auth
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +58,7 @@ async def _get_closed_trades(period: str):
 
 
 @router.get("/summary")
-async def analytics_summary(period: str = Query("all")) -> dict:
+async def analytics_summary(period: str = Query("all"), _user: str = Depends(require_auth)) -> dict:
     trades = await _get_closed_trades(period)
     if not trades:
         return {
@@ -90,7 +92,7 @@ async def analytics_summary(period: str = Query("all")) -> dict:
 
 
 @router.get("/performance")
-async def analytics_performance(period: str = Query("all")) -> list[dict]:
+async def analytics_performance(period: str = Query("all"), _user: str = Depends(require_auth)) -> list[dict]:
     trades = await _get_closed_trades(period)
     if not trades:
         return []
@@ -119,7 +121,7 @@ async def analytics_performance(period: str = Query("all")) -> list[dict]:
 
 
 @router.get("/by-strategy")
-async def analytics_by_strategy(period: str = Query("all")) -> list[dict]:
+async def analytics_by_strategy(period: str = Query("all"), _user: str = Depends(require_auth)) -> list[dict]:
     trades = await _get_closed_trades(period)
     if not trades:
         return []
@@ -145,7 +147,7 @@ async def analytics_by_strategy(period: str = Query("all")) -> list[dict]:
 
 
 @router.get("/by-pair")
-async def analytics_by_pair(period: str = Query("all")) -> list[dict]:
+async def analytics_by_pair(period: str = Query("all"), _user: str = Depends(require_auth)) -> list[dict]:
     trades = await _get_closed_trades(period)
     if not trades:
         return []

@@ -21,7 +21,7 @@ import time
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel
 
 from config.settings import DASHBOARD_API_KEY, DASHBOARD_WS_TOKEN
@@ -87,6 +87,41 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     token: str
     user: dict
+
+
+# ---------------------------------------------------------------------------
+# Reusable auth dependency — validates JWT Bearer token OR X-API-Key
+# ---------------------------------------------------------------------------
+
+
+async def require_auth(
+    authorization: str | None = Header(None),
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
+) -> str:
+    """Unified auth dependency for all dashboard API endpoints.
+
+    Accepts JWT Bearer token OR legacy X-API-Key header.
+    If DASHBOARD_API_KEY is not configured, auth is bypassed (dev mode).
+    """
+    # Method 1: JWT Bearer token
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization[7:]
+        payload = _verify_jwt(token)
+        if payload:
+            return payload.get("sub", "jwt-user")
+
+    # Method 2: Legacy API key header
+    if x_api_key:
+        if not DASHBOARD_API_KEY:
+            return "no-auth-configured"
+        if x_api_key == DASHBOARD_API_KEY:
+            return x_api_key
+
+    # Method 3: No auth configured — dev/migration mode
+    if not DASHBOARD_API_KEY:
+        return "no-auth-configured"
+
+    raise HTTPException(status_code=401, detail="Invalid or missing authentication")
 
 
 # ---------------------------------------------------------------------------

@@ -64,6 +64,22 @@ async def require_api_key(
         return x_api_key
     raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
+
+# Import JWT verifier from auth module
+from dashboard.backend.routes.auth import _verify_jwt as verify_jwt
+from dashboard.backend.routes.auth import require_auth
+
+
+async def require_api_key(
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
+) -> str:
+    """Legacy dependency — kept for backward compat. Prefer require_auth."""
+    if not DASHBOARD_API_KEY:
+        return "no-auth-configured"
+    if x_api_key and x_api_key == DASHBOARD_API_KEY:
+        return x_api_key
+    raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
 logger = logging.getLogger(__name__)
 
 
@@ -294,7 +310,10 @@ def _store_event(msg: dict) -> None:
 
 
 @app.get("/api/events")
-async def get_events(limit: int = Query(100, ge=1, le=200)) -> list[dict]:
+async def get_events(
+    limit: int = Query(100, ge=1, le=200),
+    _user: str = Depends(require_auth),
+) -> list[dict]:
     """Return stored events (newest first). Survives page refresh."""
     return list(_events)[:limit]
 
@@ -310,7 +329,7 @@ async def get_events(limit: int = Query(100, ge=1, le=200)) -> list[dict]:
 
 
 @app.get("/api/portfolio")
-async def get_portfolio() -> dict:
+async def get_portfolio(_user: str = Depends(require_auth)) -> dict:
     lc = _lifecycle
 
     if not lc:
@@ -463,7 +482,7 @@ def _build_correlation_status(active_pairs: list[str]) -> dict:
 
 
 @app.get("/api/portfolio/equity")
-async def get_equity_history() -> dict:
+async def get_equity_history(_user: str = Depends(require_auth)) -> dict:
     if _equity_history:
         return {"points": _equity_history}
     lc = _lifecycle
@@ -485,7 +504,7 @@ async def get_equity_history() -> dict:
 
 
 @app.get("/api/system/status")
-async def get_system_status() -> dict:
+async def get_system_status(_user: str = Depends(require_auth)) -> dict:
     lc = _lifecycle
     sched = _scheduler
 
@@ -518,7 +537,7 @@ async def get_system_status() -> dict:
 
 
 @app.get("/api/system/config")
-async def get_system_config() -> dict:
+async def get_system_config(_user: str = Depends(require_auth)) -> dict:
     lc = _lifecycle
     if not lc or not hasattr(lc, "get_runtime_config"):
         return {"success": False, "error": "Lifecycle not initialized"}
@@ -528,7 +547,7 @@ async def get_system_config() -> dict:
 @app.patch("/api/system/config")
 async def patch_system_config(
     payload: SystemConfigPatch,
-    _key: str = Depends(require_api_key),
+    _key: str = Depends(require_auth),
 ) -> dict:
     lc = _lifecycle
     if not lc or not hasattr(lc, "update_runtime_config"):
@@ -543,7 +562,7 @@ async def patch_system_config(
 
 @app.post("/api/system/config/reset-default")
 async def reset_system_config(
-    _key: str = Depends(require_api_key),
+    _key: str = Depends(require_auth),
 ) -> dict:
     lc = _lifecycle
     if not lc or not hasattr(lc, "reset_runtime_config"):
@@ -556,7 +575,7 @@ async def reset_system_config(
 @app.post("/api/system/balance/set")
 async def set_balance(
     payload: BalanceSetRequest,
-    _key: str = Depends(require_api_key),
+    _key: str = Depends(require_auth),
 ) -> dict:
     lc = _lifecycle
     if not lc or not hasattr(lc, "update_runtime_config"):
@@ -579,7 +598,7 @@ async def set_balance(
 
 @app.post("/api/system/unhalt")
 async def unhalt_system(
-    _key: str = Depends(require_api_key),
+    _key: str = Depends(require_auth),
 ) -> dict:
     lc = _lifecycle
     if not lc:
@@ -606,7 +625,7 @@ async def unhalt_system(
 
 
 @app.get("/api/analysis/live")
-async def get_live_analysis() -> list[dict]:
+async def get_live_analysis(_user: str = Depends(require_auth)) -> list[dict]:
     results = []
     for a in _analyses.values():
         if a.get("state") in ("CLOSED", "CANCELLED"):
@@ -637,7 +656,7 @@ async def get_live_analysis() -> list[dict]:
 
 
 @app.get("/api/analysis/{pair}")
-async def get_pair_analysis(pair: str) -> dict:
+async def get_pair_analysis(pair: str, _user: str = Depends(require_auth)) -> dict:
     upper = pair.upper()
     if upper in _analyses:
         return _analyses[upper]
@@ -650,7 +669,7 @@ async def get_pair_analysis(pair: str) -> dict:
 
 
 @app.get("/api/pending-setups")
-async def get_pending_setups() -> list[dict]:
+async def get_pending_setups(_user: str = Depends(require_auth)) -> list[dict]:
     """Return list of pending setups waiting for price to enter zone."""
     lc = _lifecycle
     if not lc or not hasattr(lc, "_pending"):
@@ -674,7 +693,7 @@ async def get_pending_setups() -> list[dict]:
 
 @app.post("/api/analysis/force-scan")
 async def force_scan(
-    _key: str = Depends(require_api_key),
+    _key: str = Depends(require_auth),
 ) -> dict:
     """Trigger an immediate analysis scan cycle."""
     lc = _lifecycle
@@ -702,6 +721,7 @@ async def get_trades(
     result_filter: str = Query("", description="Filter by result: win/loss/be"),
     date_from: str = Query("", description="ISO date start"),
     date_to: str = Query("", description="ISO date end"),
+    _user: str = Depends(require_auth),
 ) -> list[dict]:
     trades_list = []
     if _trades:
@@ -734,7 +754,7 @@ async def get_trades(
 
 
 @app.get("/api/trades/{trade_id}")
-async def get_single_trade(trade_id: str) -> dict:
+async def get_single_trade(trade_id: str, _user: str = Depends(require_auth)) -> dict:
     for t in _trades:
         if t.get("trade_id") == trade_id:
             return t
@@ -758,7 +778,7 @@ async def get_single_trade(trade_id: str) -> dict:
 async def manual_close_position(
     trade_id: str,
     payload: ManualCloseRequest,
-    _key: str = Depends(require_api_key),
+    _key: str = Depends(require_auth),
 ) -> dict:
     lc = _lifecycle
     if not lc or not hasattr(lc, "manual_close_trade"):
@@ -798,7 +818,7 @@ def _trade_to_dict(t) -> dict:
         "take_profit_2": t.take_profit_2,
         "exit_price": t.exit_price,
         "result": t.result,
-        "pips": t.pips,
+        "pips": 0.0 if t.result in ("BE_HIT", "BREAKEVEN", "TIMEOUT_BE") else t.pips,
         "rr_achieved": t.rr_achieved,
         "duration_minutes": t.duration_minutes,
         "confluence_score": t.confluence_score,
@@ -825,7 +845,7 @@ def _trade_to_dict(t) -> dict:
 
 
 @app.get("/api/stats/daily")
-async def get_daily_stats() -> dict:
+async def get_daily_stats(_user: str = Depends(require_auth)) -> dict:
     return _daily_stats or {
         "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "total_scans": 0,
@@ -943,6 +963,9 @@ async def push_state_change(pair: str, old_state: str, new_state: str) -> None:
 
 
 async def push_trade_closed(trade_data: dict) -> None:
+    # Fix pips for breakeven results (stored incorrectly by lifecycle)
+    if trade_data.get("result") in ("BE_HIT", "BREAKEVEN", "TIMEOUT_BE"):
+        trade_data["pips"] = 0.0
     _trades.insert(0, trade_data)
     while len(_trades) > _MAX_TRADES:
         _trades.pop()
