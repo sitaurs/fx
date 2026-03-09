@@ -674,6 +674,10 @@ async def get_pending_setups(_user: str = Depends(require_auth)) -> list[dict]:
     lc = _lifecycle
     if not lc or not hasattr(lc, "_pending"):
         return []
+    # Flush expired setups before building list (they stay status="pending"
+    # until cleanup_expired is called by the price monitor loop, which may
+    # not have run yet).
+    lc._pending.cleanup_expired()
     raw = lc._pending.to_dashboard_list()
     # Normalize field names for frontend compatibility
     results = []
